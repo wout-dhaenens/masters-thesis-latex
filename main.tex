@@ -1325,6 +1325,150 @@ Finally, Section~\ref{sec:solver_settings} documents the solver configuration an
 % TODO: Describe identification of representative operational periods (seasonal, peak, off-peak)
 
 % ============================================================
+\section{Techno-Economic Parameters}
+\label{sec:econ_params}
+% ============================================================
+
+Before presenting the component models it is necessary to establish the economic framework
+used to translate one-time capital expenditures into annual costs comparable with the
+annual operational expenditures optimised by the MILP.
+This section describes the Capital Recovery Factor, the economies-of-scale cost model,
+and lists all techno-economic parameters used in the study.
+
+% ------------------------------------------------------------
+\subsection{Capital Recovery Factor (CRF)}
+\label{sub:crf}
+% ------------------------------------------------------------
+
+Investment costs for all technologies are converted to an equivalent \textbf{annualised
+CAPEX} using the Capital Recovery Factor (CRF), also known as the annuity factor.
+The CRF spreads a one-time investment over the asset's economic lifetime $n$ [yr]
+at a fixed discount rate $r$ [-], representing the weighted average cost of capital (WACC):
+
+\begin{equation}
+    \mathrm{CRF}(r,\,n) = \frac{r\,(1+r)^{n}}{(1+r)^{n}-1}.
+    \label{eq:crf}
+\end{equation}
+
+\noindent A single discount rate of $r = 5\,\%$ is applied uniformly to all technologies,
+reflecting a typical WACC for commercial building energy investments in Belgium~\cite{VEKA2026}.
+Each technology has its own economic lifetime $n$, so a separate CRF value is computed per
+technology.
+The annualised CAPEX for a technology with unit investment cost $c$ [\euro/unit] and
+installed capacity $X$ [unit] is then:
+
+\begin{equation}
+    \mathrm{CAPEX}_\mathrm{ann}(X) = c \cdot \mathrm{CRF}(r,n) \cdot X
+    \quad [\text{\euro/yr}].
+    \label{eq:capex_ann_linear}
+\end{equation}
+
+\noindent In reality, the specific cost $c$ depends on the scale of installation, which
+is addressed by the economies-of-scale model described next.
+
+% ------------------------------------------------------------
+\subsection{Economies-of-Scale Cost Model}
+\label{sub:eos}
+% ------------------------------------------------------------
+
+Large installations benefit from lower specific (per-unit) costs due to procurement
+discounts, fixed installation overheads spread over greater capacity, and engineering
+efficiency.
+This is captured by a \textbf{power-law} (``six-tenths rule'') scaling of total annual
+cost with installed capacity~\cite{Shafer2006EOS}:
+
+\begin{equation}
+    \mathrm{CAPEX}_\mathrm{ann}(X)
+    = c_\mathrm{ref} \cdot X_\mathrm{ref}
+      \left(\frac{X}{X_\mathrm{ref}}\right)^{\!\alpha},
+    \quad \alpha = 0.6,
+    \label{eq:eos}
+\end{equation}
+
+\noindent where $X_\mathrm{ref}$ is the reference (anchor) capacity at which the
+specific cost $c_\mathrm{ref}$ [\euro/unit/yr] is exactly known from market data,
+and $\alpha = 0.6$ is the industry-standard scaling exponent.
+Because $\alpha < 1$ the function is concave: the marginal cost decreases as capacity
+grows.
+
+The power-law curve is inherently non-linear and cannot be embedded directly in the MILP.
+It is therefore approximated by a \textbf{piecewise-linear} (PWL) function using Gurobi's
+native \texttt{addGenConstrPWL} constraint, with breakpoints distributed using quadratic
+spacing to cluster more points near zero capacity where the curvature is steepest.
+This approximation preserves the concavity of the cost curve and therefore does not affect
+the global optimality guarantee of the solver.
+
+% ------------------------------------------------------------
+\subsection{Technology Parameters}
+\label{sub:tech_params}
+% ------------------------------------------------------------
+
+\autoref{tab:econ_params} lists all techno-economic parameters used in the MILP model.
+The unit CAPEX values are based on current Belgian market data and recent literature for
+each technology.
+
+\begin{table}[H]
+\centering
+\caption{Techno-economic parameters for all candidate technologies.
+         CRF values computed with $r = 5\,\%$ via \eqref{eq:crf}.
+         Annualised CAPEX is the product of unit CAPEX and CRF, evaluated at the
+         EOS anchor capacity.}
+\label{tab:econ_params}
+\begin{tabular}{lcccccc}
+\hline
+\textbf{Technology} & \textbf{Unit} & \textbf{CAPEX} & \textbf{Lifetime} & \textbf{CRF} & \textbf{Ann.\ CAPEX} & \textbf{EOS anchor} \\
+                    &               & [\text{\euro}/unit]   & [yr]              & [-]          & [\text{\euro}/unit/yr]      & [unit] \\
+\hline
+HTHP (Daikin EWYE-CZ) & kW$_\mathrm{th}$ & 7\,000 & 20 & 0.0802 & 561.7 & 30\,kW$_\mathrm{th}$ \\
+PV array              & kW$_\mathrm{p}$  &   900  & 25 & 0.0710 &  63.9 & 10\,kW$_\mathrm{p}$ \\
+BESS                  & kWh              &   800  & 15 & 0.0963 &  77.1 & 10\,kWh \\
+LTES (PCM)            & kWh$_\mathrm{th}$ & 600   & 20 & 0.0802 &  48.1 & 30\,kWh$_\mathrm{th}$ \\
+WTES (water tank)     & kWh$_\mathrm{th}$ & 132.5 & 20 & 0.0802 &  10.6 & 3.3\,kWh$_\mathrm{th}$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\noindent The WTES reference cost is derived from a market benchmark of
+$3\,\text{\euro}/\text{L}$ at a 500\,L tank~\cite{Krien2020oemofsolph}, converted to a
+specific energy cost using the water thermal capacity
+($\rho c_p = 971.8 \times 4190\,\mathrm{J/(m^3\cdot K)}$) over a temperature
+swing of $\Delta T = 20\,\mathrm{K}$ (supply $60\,^{\circ}$C,
+return $40\,^{\circ}$C), yielding $22.6\,\mathrm{kWh_{th}/m^3}$ and a
+unit cost of $132.5\,\text{\euro}/\mathrm{kWh_{th}}$.
+
+% ------------------------------------------------------------
+\subsection{Other Economic Parameters}
+\label{sub:other_econ}
+% ------------------------------------------------------------
+
+\autoref{tab:other_econ} lists the remaining economic parameters that appear in the
+objective function but are not technology-specific investment costs.
+
+\begin{table}[H]
+\centering
+\caption{Other economic parameters used in the objective function.}
+\label{tab:other_econ}
+\begin{tabular}{lcc}
+\hline
+\textbf{Parameter} & \textbf{Value} & \textbf{Unit} \\
+\hline
+Discount rate (WACC)            & 5.0   & \% \\
+VAT on operational costs        & 21.0  & \% \\
+Capacity network tariff         & 5.0   & \euro/kW/month \\
+Fixed annual connection cost    & 200   & \euro/yr \\
+Maximum annual CAPEX budget     & 250\,000 & \euro/yr \\
+EOS scaling exponent $\alpha$   & 0.6   & --- \\
+\hline
+\end{tabular}
+\end{table}
+
+\noindent The capacity tariff of $5\,\text{\euro/kW/month}$ reflects the Belgian
+distribution network tariff structure, where the monthly peak grid import power
+determines a significant fraction of the network cost.
+This tariff creates a strong incentive for the MILP to smooth and reduce peak grid
+imports, which in turn motivates investment in the BESS and TES.
+
+% ============================================================
 \section{Component Models}
 \label{sec:component_models}
 % ============================================================
@@ -1562,11 +1706,115 @@ parameters they use, and their role in the MILP.
 \label{sec:pv_model}
 % ------------------------------------------------------------
 
-% TODO: Sizing variable: panel area A_pv* [m^2]  (or number of modules)
-% TODO: DC power model: P_DC(t) = (G_POA(t) / G_STC) * P_STC * A_pv* * (1 + gamma_pdc*(T_cell(t)-T_ref))
-% TODO: Cell temperature model: T_cell(t) = T_amb(t) + G_POA(t) * NOCT_factor
-% TODO: Inverter / DC-AC conversion efficiency eta_inv
-% TODO: Upper bound on A_pv* (available roof area of M-accent building)
+The PV array provides on-site renewable electricity, directly offsetting grid imports and
+supplying the HTHP, BESS, and building loads.
+Its MILP representation is intentionally simple: all complex photovoltaic physics
+(plane-of-array irradiance, cell temperature derating, DC-to-AC inverter losses,
+soiling, and wiring losses) are handled entirely in a pre-processing step using the
+PVGIS tool, so only a single linear constraint is needed inside the optimiser.
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{Pre-Processing: Normalised AC Output from PVGIS}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+The European Commission's PVGIS API~\cite{Huld2012PVGIS} is used to generate an
+hourly AC power time series for the M-accent building location
+(Brussels, $50.85^{\circ}$N, $4.35^{\circ}$E) for the reference year 2023.
+The query is submitted for a normalised 1\,kW$_\mathrm{p}$ system with a fixed tilt
+of $35^{\circ}$ and a total system loss of 14\,\% (covering wiring, shading, soiling,
+and temperature derating).
+PVGIS internally computes the full PV yield chain --- irradiance transposition to the
+tilted plane, cell temperature correction, and DC-to-AC conversion --- and returns the
+result as a single hourly array:
+
+\begin{equation}
+    I_\mathrm{sol}(t) \quad [\mathrm{kW/kW_p}], \qquad t = 1, \ldots, 8760.
+    \label{eq:pvgis_output}
+\end{equation}
+
+\noindent This normalised specific yield is stored as a fixed parameter array before
+the optimisation begins.
+Delegating the PV physics to PVGIS avoids introducing any non-linear terms
+(e.g.\ the cell temperature correction $1 + \gamma_\mathrm{pdc}(T_\mathrm{cell}-T_\mathrm{ref})$)
+into the MILP, while still capturing realistic seasonal and diurnal generation profiles.
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{Decision Variable and Technology-Selection Binary}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+The investment decision is the \textbf{installed peak capacity}:
+\begin{equation}
+    C_\mathrm{PV} \in [0,\; C_\mathrm{PV,max}] \quad [\mathrm{kW_p}],
+    \label{eq:pv_sizing}
+\end{equation}
+with $C_\mathrm{PV,max} = 50\,\mathrm{kW_p}$ reflecting the available roof area of the
+M-accent building.
+
+A binary variable $y_\mathrm{PV} \in \{0,1\}$ indicates whether PV is installed at all.
+This is required because the capital cost function is concave (economies of scale,
+Section~\ref{sub:pv_capex}): without the binary, the optimizer could exploit the lower
+per-unit cost at large capacity to install a negligibly small system at zero cost.
+The technology-selection constraint is:
+\begin{equation}
+    C_\mathrm{PV} \leq C_\mathrm{PV,max}\, y_\mathrm{PV}.
+    \label{eq:pv_select}
+\end{equation}
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{Hourly Generation Constraint}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+The AC power injected by the PV array at each time step is simply:
+\begin{equation}
+    P_\mathrm{PV}(t) = I_\mathrm{sol}(t)\cdot C_\mathrm{PV},
+    \qquad \forall\, t.
+    \label{eq:pv_power}
+\end{equation}
+
+\noindent Since $I_\mathrm{sol}(t)$ is a known scalar parameter, this is linear in the
+single decision variable $C_\mathrm{PV}$.
+$P_\mathrm{PV}(t)$ enters the electrical energy balance
+(Section~\ref{sec:energy_balance}) as a generation term.
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{Grid-Injection Limit}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+To prevent the model from selling grid-purchased electricity at a profit (a physically
+impossible arbitrage), the power sold to the grid is capped at the sum of PV generation
+and battery discharge:
+\begin{equation}
+    P_\mathrm{sell}(t) \leq P_\mathrm{PV}(t) + P_\mathrm{bat,dis}(t),
+    \qquad \forall\, t.
+    \label{eq:pv_sellcap}
+\end{equation}
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{Piecewise-Linear CAPEX with Economies of Scale}
+\label{sub:pv_capex}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+In practice, larger PV installations benefit from lower specific installation costs.
+This is modelled with a \textbf{power-law cost curve}~\cite{Shafer2006EOS} using a
+scaling exponent of $0.6$ (the industry-standard ``six-tenths rule''):
+
+\begin{equation}
+    \mathrm{CAPEX}_\mathrm{PV}(C_\mathrm{PV})
+    = c_\mathrm{ref}\, C_\mathrm{ref}
+      \left(\frac{C_\mathrm{PV}}{C_\mathrm{ref}}\right)^{0.6}
+    \quad [\text{\euro/yr}],
+    \label{eq:pv_capex_eos}
+\end{equation}
+
+\noindent where $c_\mathrm{ref} = 63.9\,\text{\euro/kW}_\mathrm{p}/\text{yr}$
+(annualised from $900\,\text{\euro/kW}_\mathrm{p}$ over 25\,yr at 5\,\% discount rate)
+and the anchor capacity is $C_\mathrm{ref} = 10\,\mathrm{kW_p}$.
+Because equation~\eqref{eq:pv_capex_eos} is non-linear, it is approximated by a
+\textbf{piecewise-linear} (PWL) function using Gurobi's native
+\texttt{addGenConstrPWL} with breakpoints clustered near zero (quadratic spacing)
+where the curve bends most steeply.
+The PWL approximation preserves the concavity of the cost curve and therefore does
+not affect the global optimality guarantee of the MILP solver.
 
 % ------------------------------------------------------------
 \subsection{Battery Energy Storage System (BESS)}
