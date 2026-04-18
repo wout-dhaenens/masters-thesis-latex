@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.degruyterbrill.com)",
+      "Bash(powershell.exe -Command \"& 'C:\\\\Users\\\\woutd\\\\miniconda3\\\\envs\\\\fresh_env\\\\python.exe' 'C:\\\\Users\\\\woutd\\\\pvgis_stats_only.py' 2>&1 | Out-String\")",
+      "Bash(powershell.exe -Command 'try { $out = & '\\\\''C:\\\\Users\\\\woutd\\\\miniconda3\\\\envs\\\\fresh_env\\\\python.exe'\\\\'' '\\\\''C:\\\\Users\\\\woutd\\\\pvgis_stats_only.py'\\\\'' 2>&1; $out } catch { $_ }')",
+      "WebFetch(domain:ec.europa.eu)"
+    ]
+  }
+}

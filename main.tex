@@ -397,7 +397,7 @@ These methods use iterative search techniques and do \textbf{not guarantee a glo
 \textit{Example:} Mohamed et al.~\cite{mohamed2016pso} applied PSO to optimally size a grid-connected hybrid PV--wind--battery--diesel system for remote areas in Saudi Arabia. Each particle represents a combination of component sizes, and the fitness function minimises the \textit{Loss of Load Probability} (LOLP) and total cost simultaneously. A smart-grid load-shifting strategy was integrated to reshape the demand profile, further reducing required storage capacity.
     \item \textbf{Simulated Annealing (SA)}: A probabilistic technique used to approximate the global optimum of a non-convex objective function by iteratively exploring the solution space and occasionally accepting worse solutions to escape local optima.
 
-\textit{Simple analogy:} SA is inspired by the physical process of slowly cooling molten metal. A blacksmith heats steel until the atoms move freely, then cools it gradually so they settle into a low-energy, stable crystalline structure. If cooled too quickly, defects are trapped; if cooled slowly, the atoms find near-perfect arrangements. In optimization, the ``temperature'' controls how willing the algorithm is to accept a worse solution. At high temperature, the algorithm explores broadly and accepts bad moves freely --- avoiding entrapment in local optima. As the temperature is gradually reduced (\textit{cooling schedule}), the algorithm becomes increasingly selective, eventually converging on a near-global optimum. This makes SA particularly suited to the \textbf{non-linear, non-convex} sizing problems typical of hybrid renewable energy systems.
+\textit{Simple analogy:} SA is inspired by the physical process of slowly cooling molten metal. A blacksmith heats steel until the atoms move freely, then cools it gradually so they settle into a low-energy, stable crystalline structure. If cooled too quickly, defects are trapped; if cooled slowly, the atoms find near-perfect arrangements. In optimization, the ``temperature'' controls how willing the algorithm is to accept a worse solution. At high temperature, the algorithm explores broadly and accepts bad moves freely, avoiding entrapment in local optima. As the temperature is gradually reduced (\textit{cooling schedule}), the algorithm becomes increasingly selective, eventually converging on a near-global optimum. This makes SA particularly suited to the \textbf{non-linear, non-convex} sizing problems typical of hybrid renewable energy systems.
 
 \textit{Example:} Ekren and Ekren~\cite{ekren2010sa} applied SA to size a stand-alone PV--wind--battery hybrid system for a campus in Turkey. The decision variables were PV array size, wind turbine rotor swept area, and battery capacity. The objective function minimised total system cost subject to a reliability constraint. 
 \end{itemize}
@@ -452,7 +452,7 @@ A key economic driver for the BESS and TES in a commercial building is \textbf{p
 
 \subsubsection*{Limitations Acknowledged}
 
-MILP requires \textbf{linearization} of any non-linear physical relationships. The coefficient of performance (COP) of the HTHP, for example, is in reality a non-linear function of source and sink temperatures. In this study, the COP is treated as a fixed parameter, representing a standard linearization assumption that is widely applied in the literature~\cite{cardoso2014milp, kotzur2018milp}. This is a deliberate trade-off: the loss of physical accuracy is accepted in exchange for the computational tractability and global optimality guarantees that MILP provides --- and which are essential for a design tool intended to evaluate investment decisions across a range of scenarios.
+MILP requires \textbf{linearization} of any non-linear physical relationships. The coefficient of performance (COP) of the HTHP, for example, is in reality a non-linear function of source and sink temperatures. In this study, the COP is treated as a fixed parameter, representing a standard linearization assumption that is widely applied in the literature~\cite{cardoso2014milp, kotzur2018milp}. This is a deliberate trade-off: the loss of physical accuracy is accepted in exchange for the computational tractability and global optimality guarantees that MILP provides, which are essential for a design tool intended to evaluate investment decisions across a range of scenarios.
 
 
 \subsection{MILP-based design optimisation framework.}
@@ -549,9 +549,6 @@ On the thermal side, a High-Temperature Heat Pump~(HTHP) converts electrical
 energy into heat at a rated thermal output $Q_\mathrm{hp}^*$~[kW], with
 performance characterised by its coefficient of performance~(COP) as a
 function of $T_\mathrm{amb}(t)$.
-An electric boiler~(E-Boiler) provides supplementary thermal output
-$Q_\mathrm{eb}^*$~[kW] to cover peak demands or periods when the heat pump
-alone is insufficient.
 Thermal energy can be buffered in a Thermal Energy Storage~(TES) tank of
 volume $V_\mathrm{tes}^*$~[m\textsuperscript{3}], decoupling heat generation
 from instantaneous demand.
@@ -949,6 +946,7 @@ with
 \end{itemize}
 
 \subsubsection{Stratified Thermal Storage (STS) 2-Zone Model}
+\label{sub:sts_model}
 The model implements a simplified \textbf{2-zone-model} of a large-scale sensible heat storage with ideal stratification for energy system optimization (see Figure 1 \cite{Krien2020oemofsolph}). This model assumes a cylindrical storage of diameter $d$ and height $h$ containing two perfectly separated bodies of water: a hot zone ($T_{\text{H}}$) and a cold zone ($T_{\text{C}}$). The temperatures are fixed to the feed-in/return temperatures of the heating system. When charging/discharging, the thermocline moves up or down. For investment problems, the diameter is typically fixed, and the height is adjusted to maintain linearity in the capacity calculation \cite{Krien2020oemofsolph}.
 
 
@@ -1293,7 +1291,7 @@ This methodology will directly enable the cost-optimal and environmentally sound
 \label{chapt3}
 
 The preceding chapters established the problem context and the theoretical foundation for this work.
-Chapter~\ref{intro} identified the core challenge: replacing the two 80\,kW gas boilers at the M-accent commercial building with an electrified hybrid system comprising a High-Temperature Heat Pump (HTHP), Photovoltaic (PV) array, Battery Energy Storage System (BESS), and Thermal Energy Storage (TES) --- while simultaneously minimising the Total Cost of Ownership (TCO).
+Chapter~\ref{intro} identified the core challenge: replacing the two 80\,kW gas boilers at the M-accent commercial building with an electrified hybrid system comprising a High-Temperature Heat Pump (HTHP), Photovoltaic (PV) array, Battery Energy Storage System (BESS), and Thermal Energy Storage (TES), while simultaneously minimising the Total Cost of Ownership (TCO).
 Chapter~\ref{literature review} reviewed the available optimisation paradigms and concluded that Mixed-Integer Linear Programming (MILP) is the most appropriate framework for this application: it guarantees a globally optimal solution, natively handles the mixed continuous-and-discrete decision structure inherent to energy systems, and integrates seamlessly with the time-varying electricity tariffs that drive economic dispatch decisions.
 
 Building on those foundations, this chapter presents the complete mathematical formulation of the MILP design tool developed in this thesis.
@@ -1302,9 +1300,10 @@ These two layers cannot be solved independently: the economic value of storage, 
 The MILP formulation resolves this coupling in a single unified optimisation problem.
 
 The chapter is structured as follows.
-Section~\ref{sec:data_inputs} describes the input data pipeline: the climatic, tariff, and load profiles that drive the model.
-Sections~\ref{sec:hthp_model}--\ref{sec:tes_model} develop the linearised component models for each technology, detailing the physical constraints and the linearisation choices required for MILP compatibility.
-Section~\ref{sec:energy_balance} states the system-level energy balance constraints that couple all components at every time step.
+Section~\ref{sec:data_inputs} describes the five input time-series that drive the model day-ahead electricity prices, solar irradiance, thermal heat demand, electrical load, and ambient temperature, together with the HTHP-specific pre-processing steps that convert the ambient temperature record into the hourly COP and capacity-fraction arrays used as fixed parameters by the solver.
+Sections~\ref{sec:component_models} develops the linearised component models for each technology, detailing the physical constraints and the linearisation choices required for MILP compatibility.
+Section~\ref{sec:energy_balance} states the system-level energy balance constraints that couple all components at every time step: an electrical balance ensuring that generation and storage always match the AC bus demand, and a thermal balance ensuring that heat pump output and TES discharge together satisfy the building heat demand.
+Section~\ref{sec:econ_params} establishes the economic framework: the Capital Recovery Factor used to annualise investment costs, the linear-affine CAPEX model fitted to market data, and the full set of techno-economic parameters.
 Section~\ref{sec:objective_function} defines the objective function, which minimises the annualised total system cost comprising CAPEX and OPEX.
 Finally, Section~\ref{sec:solver_settings} documents the solver configuration and solution strategy.
 
@@ -1313,186 +1312,587 @@ Finally, Section~\ref{sec:solver_settings} documents the solver configuration an
 \label{sec:data_inputs}
 % ============================================================
 
-% TODO: Describe the five hourly time-series datasets (8760 time steps):
-%   - Day-ahead electricity spot prices  lambda(t)  [EUR/kWh]
-%   - Solar irradiance G(t) [W/m^2] and ambient temperature T_amb(t)  from TMY file
-%   - Thermal heat demand Q_dem(t) [kW] of the M-accent building
-%   - Electrical demand P_dem(t) [kW] of the M-accent building
-%   - Grid connection constraints: max import/export power P_max, network tariffs
-%
-% TODO: Explain data sources (Elia EPEX spot prices, EnergyPlus TMY, building metering data)
-% TODO: Describe normalisation, validation, and alignment to common hourly resolution
-% TODO: Describe identification of representative operational periods (seasonal, peak, off-peak)
+The MILP model operates over a full calendar year discretised into $T = 8\,760$ hourly time steps, indexed $t \in \{1, \ldots, T\}$.
+Five time-series datasets are required: the thermal heat demand $Q_\mathrm{dem}(t)$, the electrical demand $P_\mathrm{dem}(t)$, the in-plane solar irradiance $G(t)$ and ambient temperature $T_\mathrm{amb}(t)$, and the day-ahead electricity spot price $\lambda(t)$.
+This section describes the origin, processing, and validation of each dataset.
 
-% ============================================================
-\section{Techno-Economic Parameters}
-\label{sec:econ_params}
-% ============================================================
+% ────────────────────────────────────────────────────────────
+\subsection{Thermal Heat Demand}
+\label{subsec:thermal_demand}
+% ────────────────────────────────────────────────────────────
 
-Before presenting the component models it is necessary to establish the economic framework
-used to translate one-time capital expenditures into annual costs comparable with the
-annual operational expenditures optimised by the MILP.
-This section describes the Capital Recovery Factor, the economies-of-scale cost model,
-and lists all techno-economic parameters used in the study.
+\subsubsection*{Initial measurement approach and its limitations}
 
-% ------------------------------------------------------------
-\subsection{Capital Recovery Factor (CRF)}
-\label{sub:crf}
-% ------------------------------------------------------------
+The building's thermal demand was first estimated by instrumenting the existing hydronic
+heating circuit.
+As shown in Figure~\ref{fig:pid_schematic}, two gas boilers feed a hydraulic separator
+that decouples the primary boiler circuit from the secondary distribution loop.
+Three signals were logged at sub-hourly resolution from the building management system:
+supply temperature $T_\mathrm{sup}$ (sensor~3U2), return temperature $T_\mathrm{ret}$
+(sensor~3U4), and the run status of secondary pump~26M1.
 
-Investment costs for all technologies are converted to an equivalent \textbf{annualised
-CAPEX} using the Capital Recovery Factor (CRF), also known as the annuity factor.
-The CRF spreads a one-time investment over the asset's economic lifetime $n$ [yr]
-at a fixed discount rate $r$ [-], representing the weighted average cost of capital (WACC):
-
-\begin{equation}
-    \mathrm{CRF}(r,\,n) = \frac{r\,(1+r)^{n}}{(1+r)^{n}-1}.
-    \label{eq:crf}
-\end{equation}
-
-\noindent A single discount rate of $r = 5\,\%$ is applied uniformly to all technologies,
-reflecting a typical WACC for commercial building energy investments in Belgium~\cite{VEKA2026}.
-Each technology has its own economic lifetime $n$, so a separate CRF value is computed per
-technology.
-The annualised CAPEX for a technology with unit investment cost $c$ [\euro/unit] and
-installed capacity $X$ [unit] is then:
-
-\begin{equation}
-    \mathrm{CAPEX}_\mathrm{ann}(X) = c \cdot \mathrm{CRF}(r,n) \cdot X
-    \quad [\text{\euro/yr}].
-    \label{eq:capex_ann_linear}
-\end{equation}
-
-\noindent In reality, the specific cost $c$ depends on the scale of installation, which
-is addressed by the economies-of-scale model described next.
-
-% ------------------------------------------------------------
-\subsection{Economies-of-Scale Cost Model}
-\label{sub:eos}
-% ------------------------------------------------------------
-
-Large installations benefit from lower specific (per-unit) costs due to procurement
-discounts, fixed installation overheads spread over greater capacity, and engineering
-efficiency.
-This is captured by a \textbf{power-law} (``six-tenths rule'') scaling of total annual
-cost with installed capacity~\cite{Shafer2006EOS}:
-
-\begin{equation}
-    \mathrm{CAPEX}_\mathrm{ann}(X)
-    = c_\mathrm{ref} \cdot X_\mathrm{ref}
-      \left(\frac{X}{X_\mathrm{ref}}\right)^{\!\alpha},
-    \quad \alpha = 0.6,
-    \label{eq:eos}
-\end{equation}
-
-\noindent where $X_\mathrm{ref}$ is the reference (anchor) capacity at which the
-specific cost $c_\mathrm{ref}$ [\euro/unit/yr] is exactly known from market data,
-and $\alpha = 0.6$ is the industry-standard scaling exponent.
-Because $\alpha < 1$ the function is concave: the marginal cost decreases as capacity
-grows.
-
-The power-law curve is inherently non-linear and cannot be embedded directly in the MILP.
-It is therefore approximated by a \textbf{piecewise-linear} (PWL) function using Gurobi's
-native \texttt{addGenConstrPWL} constraint, with breakpoints distributed using quadratic
-spacing to cluster more points near zero capacity where the curvature is steepest.
-This approximation preserves the concavity of the cost curve and therefore does not affect
-the global optimality guarantee of the solver.
-
-% ------------------------------------------------------------
-\subsection{Technology Parameters}
-\label{sub:tech_params}
-% ------------------------------------------------------------
-
-\autoref{tab:econ_params} lists all techno-economic parameters used in the MILP model.
-The unit CAPEX values are based on current Belgian market data and recent literature for
-each technology.
-
-\begin{table}[H]
+\begin{figure}[H]
 \centering
-\caption{Techno-economic parameters for all candidate technologies.
-         CRF values computed with $r = 5\,\%$ via \eqref{eq:crf}.
-         Annualised CAPEX is the product of unit CAPEX and CRF, evaluated at the
-         EOS anchor capacity.}
-\label{tab:econ_params}
-\begin{tabular}{lcccccc}
-\hline
-\textbf{Technology} & \textbf{Unit} & \textbf{CAPEX} & \textbf{Lifetime} & \textbf{CRF} & \textbf{Ann.\ CAPEX} & \textbf{EOS anchor} \\
-                    &               & [\text{\euro}/unit]   & [yr]              & [-]          & [\text{\euro}/unit/yr]      & [unit] \\
-\hline
-HTHP (Daikin EWYE-CZ) & kW$_\mathrm{th}$ & 7\,000 & 20 & 0.0802 & 561.7 & 30\,kW$_\mathrm{th}$ \\
-PV array              & kW$_\mathrm{p}$  &   900  & 25 & 0.0710 &  63.9 & 10\,kW$_\mathrm{p}$ \\
-BESS                  & kWh              &   800  & 15 & 0.0963 &  77.1 & 10\,kWh \\
-LTES (PCM)            & kWh$_\mathrm{th}$ & 600   & 20 & 0.0802 &  48.1 & 30\,kWh$_\mathrm{th}$ \\
-WTES (water tank)     & kWh$_\mathrm{th}$ & 132.5 & 20 & 0.0802 &  10.6 & 3.3\,kWh$_\mathrm{th}$ \\
-\hline
-\end{tabular}
-\end{table}
+\begin{tikzpicture}[
+    thick, >=latex, font=\small,
+    comp/.style    = {draw, rounded corners=4pt, fill=gray!12,
+                      minimum width=2.6cm, minimum height=1.8cm, align=center},
+    sensorT/.style = {draw, circle, fill=orange!25, minimum size=0.72cm,
+                      inner sep=0pt, font=\footnotesize\bfseries},
+    pumpM/.style   = {draw, circle, fill=cyan!20, minimum size=0.82cm,
+                      inner sep=0pt, font=\footnotesize\bfseries},
+    hot/.style     = {red!75!black,  line width=1.6pt},
+    cold/.style    = {blue!70!black, line width=1.6pt},
+    annot/.style   = {font=\footnotesize, align=center},
+]
 
-\noindent The WTES reference cost is derived from a market benchmark of
-$3\,\text{\euro}/\text{L}$ at a 500\,L tank~\cite{Krien2020oemofsolph}, converted to a
-specific energy cost using the water thermal capacity
-($\rho c_p = 971.8 \times 4190\,\mathrm{J/(m^3\cdot K)}$) over a temperature
-swing of $\Delta T = 20\,\mathrm{K}$ (supply $60\,^{\circ}$C,
-return $40\,^{\circ}$C), yielding $22.6\,\mathrm{kWh_{th}/m^3}$ and a
-unit cost of $132.5\,\text{\euro}/\mathrm{kWh_{th}}$.
+% ── y-levels ──────────────────────────────────────────────────
+\def\ysup{1.2}    % supply pipe
+\def\yret{-1.2}   % return pipe
 
-% ------------------------------------------------------------
-\subsection{Other Economic Parameters}
-\label{sub:other_econ}
-% ------------------------------------------------------------
+% ── x-positions ───────────────────────────────────────────────
+% boilers: 0  |  sep: 4.0  |  pump: 5.5  |  sensors: 7.5  |  buffer: 9.5  |  loads: 12.5
 
-\autoref{tab:other_econ} lists the remaining economic parameters that appear in the
-objective function but are not technology-specific investment costs.
+% ── BOILERS ───────────────────────────────────────────────────
+\node[comp, minimum height=2.8cm] (boilers) at (0,0)
+      {Gas Boilers\\$2\!\times\!80$\,kW};
 
-\begin{table}[H]
-\centering
-\caption{Other economic parameters used in the objective function.}
-\label{tab:other_econ}
-\begin{tabular}{lcc}
-\hline
-\textbf{Parameter} & \textbf{Value} & \textbf{Unit} \\
-\hline
-Discount rate (WACC)            & 5.0   & \% \\
-VAT on operational costs        & 21.0  & \% \\
-Capacity network tariff         & 5.0   & \euro/kW/month \\
-Fixed annual connection cost    & 200   & \euro/yr \\
-Maximum annual CAPEX budget     & 250\,000 & \euro/yr \\
-EOS scaling exponent $\alpha$   & 0.6   & --- \\
-\hline
-\end{tabular}
-\end{table}
+% ── HYDRAULIC SEPARATOR ───────────────────────────────────────
+\node[draw, fill=gray!12, minimum width=0.75cm, minimum height=3.2cm]
+      (sep) at (4.0, 0) {};
+\node[annot, below=6pt] at (sep.south) {Hydraulic\\separator};
 
-\noindent The capacity tariff of $5\,\text{\euro/kW/month}$ reflects the Belgian
-distribution network tariff structure, where the monthly peak grid import power
-determines a significant fraction of the network cost.
+% ── BUFFER VESSEL ─────────────────────────────────────────────
+\node[draw, fill=gray!12, minimum width=0.75cm, minimum height=3.2cm]
+      (buf) at (9.5, 0) {};
+\node[annot, below=6pt] at (buf.south) {Buffer\\vessel};
+
+% ── BUILDING LOADS ────────────────────────────────────────────
+\node[comp, minimum width=3.0cm, minimum height=2.8cm] (loads) at (12.5,0)
+      {Building\\heating zones};
+
+% ── SUPPLY LINE (red, top) ────────────────────────────────────
+% boiler → separator
+\draw[hot, ->] (boilers.east |- 0,\ysup) -- (sep.center |- 0,\ysup);
+% separator → sensor gap → buffer vessel
+\draw[hot]     (sep.center |- 0,\ysup)   -- (7.1, \ysup);
+\draw[hot]     (7.9, \ysup)              -- (buf.west |- 0,\ysup);
+% buffer vessel → loads
+\draw[hot, ->] (buf.east |- 0,\ysup)    -- (loads.west |- 0,\ysup);
+\node[annot, above=3pt] at (2.0,\ysup) {\color{red!75!black}supply};
+
+% ── RETURN LINE (blue, bottom) ────────────────────────────────
+% loads → buffer vessel
+\draw[cold]    (loads.west |- 0,\yret)  -- (buf.east |- 0,\yret);
+% buffer vessel → sensor gap → separator
+\draw[cold]    (buf.west |- 0,\yret)    -- (7.9, \yret);
+\draw[cold, ->](7.1, \yret)             -- (sep.center |- 0,\yret);
+% separator → boiler
+\draw[cold, ->](sep.center |- 0,\yret) -- (boilers.east |- 0,\yret);
+\node[annot, below=3pt] at (2.0,\yret) {\color{blue!70!black}return};
+
+% ── PUMP 26M1  (supply side, just after separator) ────────────
+\node[pumpM] (pump) at (5.5, \ysup) {\textbf{M}};
+\draw (pump.north) -- ++(0, 0.55)
+      node[above, annot, font=\footnotesize\bfseries] {26M1};
+
+% ── SENSOR 3U2  (T_sup, supply, after pump) ───────────────────
+\node[sensorT] (U2) at (7.5, \ysup) {T};
+\draw (U2.north) -- ++(0, 0.45)
+      node[above, annot, font=\footnotesize\bfseries] {3U2 \;$T_\mathrm{sup}$};
+
+% ── SENSOR 3U4  (T_ret, return side) ─────────────────────────
+\node[sensorT] (U4) at (7.5, \yret) {T};
+\draw (U4.south) -- ++(0,-0.45)
+      node[below, annot, font=\footnotesize\bfseries] {3U4 \;$T_\mathrm{ret}$};
+
+% ── LEGEND  (2 × 2 grid below the diagram) ────────────────────
+\begin{scope}[shift={(0,-3.6)}]
+  % row 1
+  \draw[hot,  ->] (0, 0.4) -- (0.7, 0.4)
+        node[right, annot] {supply (hot)};
+  \draw[cold, ->] (5.5, 0.4) -- (6.2, 0.4)
+        node[right, annot] {return (cold)};
+  % row 2
+  \node[sensorT, scale=0.75] (Tleg) at (0.35, -0.35) {T};
+  \node[right, annot] at (0.75, -0.35) {temperature sensor};
+  \node[pumpM,  scale=0.75] (Mleg) at (5.85, -0.35) {M};
+  \node[right, annot] at (6.25, -0.35) {circulation pump};
+\end{scope}
+
+\end{tikzpicture}
+\caption{Simplified schematic of the M-accent Eeklo heating circuit (derived from the installation P\&ID).
+         Pump~26M1 drives the secondary circuit; sensor~3U2 measures supply temperature $T_\mathrm{sup}$ downstream of the pump, and sensor~3U4 measures return temperature $T_\mathrm{ret}$ on the return pipe, both located between the hydraulic separator and the buffer vessel.
+         Thermal power is computed as $\dot{Q} = \dot{m}\,c_p\,(T_\mathrm{sup}-T_\mathrm{ret})\cdot u_\mathrm{pump}$.}
+\label{fig:pid_schematic}
+\end{figure}
+
+From these signals the instantaneous thermal power was computed as
+\begin{equation}
+    \dot{Q}(t) = \dot{m} \, c_p \, \bigl(T_\mathrm{sup}(t) - T_\mathrm{ret}(t)\bigr) \cdot u_\mathrm{pump}(t),
+    \label{eq:Q_measured}
+\end{equation}
+where $\dot{m} = 2.22$\,kg/s is the nominal flow rate of 8\,m$^3$/h, $c_p = 4.186$\,kJ/(kg\,K),
+and $u_\mathrm{pump} \in \{0,1\}$ is the pump state.
+The temperature sensors were calibrated in a calibration oven across the full operating range,
+and the flow rate was verified independently by the HVAC contractor Climanova and by computing
+the theoretical flow from the measured pressure drop across a balancing valve; all methods
+agreed with the 8\,m$^3$/h specification.
+
+Despite this confirmed sensor accuracy, the resulting power series recovered only
+21--36\% of the monthly energy expected from the historical gas consumption records
+(seasons 2018/2019 and 2021/2022, $\approx 260$\,MWh/yr), as illustrated in
+Figure~\ref{fig:heat_demand_monthly}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{images/thesis_heat_demand_monthly.png}
+    \caption{Monthly heat demand comparison for the 2025/26 heating season at M-accent Eeklo:
+             BDEW model (red) versus calorimetric measurements (blue).
+             The measured values recover only 21--36\% of the model-estimated demand each month.}
+    \label{fig:heat_demand_monthly}
+\end{figure}
+
+The 1\,000\,L buffer vessel located downstream of the sensors
+(Figure~\ref{fig:pid_schematic}) could in principle cause a systematic error if the
+sensors measure heat flowing into or out of storage rather than heat delivered to the
+zones.
+However, this effect is bounded: the buffer's maximum storage capacity is
+$E_\mathrm{buf} = 1000 \times 4.186 \times 29\,\mathrm{kJ} \approx 33.7\,\mathrm{kWh}$,
+compared to a typical winter day demand of $\approx 480\,\mathrm{kWh/day}$, giving a
+worst-case daily error of $33.7/480 \approx 7\,\%$.
+In practice, the buffer temperature varies by only a few kelvin per day, and over a
+full 24-hour period the tank returns to approximately the same thermal state, so any
+morning overestimation is offset by evening recovery.
+A systematic 21--36\% deficit across full months cannot be explained by this mechanism.
+
+A model-based approach anchored to the annual gas consumption records was therefore
+adopted instead.
+Figure~\ref{fig:heat_measurement_dec9} shows a representative day of raw measurements
+and illustrates the unphysical power spikes caused by rapid pump on/off cycling.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\linewidth]{images/heat_measurement_dec9.png}
+    \caption{Raw hydronic circuit measurements for 9 December 2025.
+             \textit{Top:} supply and return temperatures ($T_\mathrm{sup}$, $T_\mathrm{ret}$).
+             \textit{Middle:} binary pump run signal.
+             \textit{Bottom:} calorimetric power via Eq.~\eqref{eq:Q_measured}.
+             Unphysical spikes and negative values arise from rapid pump cycling and
+             transient temperature mixing.}
+    \label{fig:heat_measurement_dec9}
+\end{figure}
+
+\subsubsection*{BDEW synthetic profile methodology}
+
+Given the absence of reliable on-site metering, the thermal heat demand profile was instead constructed using the standardised BDEW (Bundesverband der Energie- und Wasserwirtschaft) standard load profile methodology for non-residential buildings, implemented via the Python \texttt{demandlib} library \cite{demandlib}.
+This approach is routinely applied in energy system studies when sub-hourly measurement data are unavailable or unreliable, and has been extended to Belgium through the \textit{when2heat} project \cite{Ruhnau2019}.
+
+The methodology proceeds in three stages: (i) computation of a smoothed \textit{reference temperature} from local weather data, (ii) mapping of that reference temperature to a daily demand factor through the BDEW sigmoid function, and (iii) disaggregation of the daily factor to hourly resolution using a BGW lookup table that accounts for weekday/weekend and temperature-bin variations.
+
+\paragraph{Reference temperature.}
+To account for thermal inertia in the building fabric, the BDEW standard does not use the instantaneous daily mean temperature directly.
+Instead, a weighted reference temperature $T_\mathrm{ref}$ is formed as
+\begin{equation}
+    T_\mathrm{ref}(d) = 0.50\,T_\mathrm{daily}(d)
+                      + 0.25\,T_\mathrm{daily}(d-1)
+                      + 0.125\,T_\mathrm{daily}(d-2)
+                      + 0.125\,T_\mathrm{daily}(d-3),
+    \label{eq:T_ref}
+\end{equation}
+where $T_\mathrm{daily}(d)$ is the 24-hour mean outdoor temperature on day $d$.
+This four-day exponentially-weighted average damps the demand response to short temperature excursions and better reflects the delayed thermal response of commercial buildings.
+
+Hourly outdoor temperatures were obtained from the Open-Meteo historical archive API ($T_\mathrm{2m}$ field) at the site coordinates (Eeklo, Belgium: $51.18^{\circ}$N, $3.55^{\circ}$E).
+
+\paragraph{Belgium heating threshold correction.}
+The BDEW sigmoid parameters were originally calibrated for Germany, where the space-heating activation threshold is approximately 13.98°C.
+Belgium's threshold, as tabulated in Kozarcanin et al.\ \cite{Kozarcanin2019} and adopted by when2heat, is 15.2°C.
+To remove this systematic bias, the reference temperature series is uniformly shifted by
+\begin{equation}
+    \Delta T_\mathrm{BE} = 15.2 - 13.98 = +1.22\,\text{K}
+    \label{eq:T_offset}
+\end{equation}
+before entering the sigmoid function.
+
+\paragraph{Daily demand factor.}
+The adjusted reference temperature is mapped to a dimensionless daily demand factor $h(d)$ through the BDEW sigmoid:
+\begin{equation}
+    h(d) = \frac{A}{1 + \left(\dfrac{B}{T_\mathrm{ref}(d) - 40}\right)^C} + D,
+    \label{eq:bdew_sigmoid}
+\end{equation}
+where the parameters $A$, $B$, $C$, and $D$ are tabulated by the BDEW for each building type, windiness class, and building energy standard.
+For this study the building type \textit{GKO} (Kaufhaus, i.e.\ retail/commercial shop) and wind class~1 (exposed, representative for the Belgian coastal climate) were selected, with building class~0 as required for non-residential building types.
+The sigmoid saturates at low temperatures (high demand) and approaches zero for $T_\mathrm{ref} \gtrsim 15^\circ$C, reflecting the near-zero space-heating demand during summer.
+
+\paragraph{Hourly disaggregation.}
+Each day's demand factor $h(d)$ is distributed across 24 hours using the BGW hourly profile table.
+This table provides dimensionless shape factors indexed by weekday (Monday through Sunday), hour of day (0--23), and temperature bin ($-15, -10, \ldots, 25, 30$°C).
+Linear interpolation between the two nearest temperature bins is applied for each hour.
+The product $h(d) \times f_\mathrm{BGW}(\text{weekday}, \text{hour}, T_\mathrm{ref}) \times 24$ yields a raw hourly profile that, when summed over the year, is normalised to unity and subsequently scaled to the known annual thermal energy demand.
+
+\paragraph{Annual demand scaling.}
+The M-accent building historically consumed approximately 260\,MWh/year for space heating, based on gas billing records.
+This figure serves as the annual scaling constant; each normalised hourly profile value is multiplied by 260\,MWh to obtain the final hourly demand series $Q_\mathrm{dem}(t)$ in kWh.
+
+\subsubsection*{Validation}
+
+The generated BDEW profile was cross-validated against the historical gas consumption records for the seasons 2018/2019 and 2021/2022, and against the partial calorimetric measurement series for December 2025 -- March 2026 (used as a qualitative reference only, given the limitations above).
+Monthly aggregates from the BDEW profile were found to be consistent with the gas records, confirming that the synthetic profile correctly reproduces the seasonal distribution of heating demand for this building type and climate.
+
+
+% ────────────────────────────────────────────────────────────
+\subsection{Day-Ahead Electricity Prices}
+\label{subsec:price_data}
+% ────────────────────────────────────────────────────────────
+
+The hourly day-ahead electricity price series $\lambda(t)$ [\euro/kWh] is retrieved from the
+\textbf{ENTSO-E Transparency Platform} via the \texttt{entsoe-py} Python client
+\cite{entsoe-py}, which provides a REST API wrapper around the official ENTSO-E data feed.
+
+\paragraph{Retrieval procedure.}
+Prices are queried for the Belgian bidding zone (area code \texttt{BE}), with all
+timestamps anchored to the \texttt{Europe/Brussels} timezone to correctly handle
+daylight-saving transitions.
+To avoid API timeouts the full year is fetched in \textbf{monthly chunks}; each chunk is
+retried up to three times with an exponential back-off before a \texttt{NaN} placeholder
+is inserted to keep the index continuous.
+The ENTSO-E platform publishes prices in \euro/MWh at up to 15-minute resolution;
+these are resampled to an hourly mean and converted to \euro/kWh by dividing by
+1\,000, yielding a 8\,760-element array aligned with the model's hourly time steps.
+Any residual gaps (DST clock changes, occasional missing quarter-hours) are
+forward-filled and then back-filled with a limit of three hours.
+
+\paragraph{Year selection and price scaling.}
+The baseline optimisation uses the 2023 price series.
+For the sensitivity analysis a \texttt{price\_multiplier} parameter scales the entire
+series uniformly, allowing the full range of plausible future price levels to be
+explored without re-fetching data (see Table~\ref{tab:sens_params}).
+
+\paragraph{Consumer tariff structure.}
+The ENTSO-E spot prices are converted to consumer buy and sell prices using the
+Ecopower \textit{Dynamische burgerstroom} tariff (valid from 1 January 2026,
+\cite{Ecopower2026tariff}; reproduced in Appendix~\ref{appendix:tariefkaart}) and
+the Fluvius Imewo distribution tariffs applicable to the Eeklo grid area.
+
+\paragraph{Capacity network tariff.}
+The Fluvius Imewo capacity tariff is published as 54.20\,\euro/kW/year, billed monthly
+on the highest 15-minute average grid-import peak recorded each calendar month.
+Dividing by twelve gives 4.52\,\euro/kW/month, which is rounded to
+$c_\mathrm{cap} = 5.0$\,\euro/kW/month in the model.
 This tariff creates a strong incentive for the MILP to smooth and reduce peak grid
-imports, which in turn motivates investment in the BESS and TES.
+imports, directly motivating investment in BESS and TES for peak shaving.
 
-% ============================================================
-\section{Component Models}
-\label{sec:component_models}
-% ============================================================
+\paragraph{Fixed annual connection cost.}
+The 200\,\euro/yr fixed cost is the sum of three standing charges that apply regardless
+of consumption: the Fluvius Imewo data-management fee (17.85\,\euro/yr), the Ecopower
+subscription fee (5.00\,\euro/month $\times$ 12 = 60\,\euro/yr), and the Flemish
+Energy Fund contribution applicable to commercial connections
+(10.07\,\euro/month $\times$ 12 = 120.84\,\euro/yr), totalling
+$17.85 + 60 + 120.84 \approx 200$\,\euro/yr.
 
-This section presents the linearised mathematical models for each technology in the candidate system.
-All models are formulated as linear equality and inequality constraints suitable for direct embedding in the MILP problem.
+\paragraph{Electricity buy price and injection revenue.}
+The Ecopower dynamic product links the consumer buy price directly to the
+EPEX\,DA quarter-hourly spot price:
+\begin{equation}
+    \lambda_\mathrm{buy}(t) = 0.00102\,\lambda_\mathrm{EPEX}(t) + c_\mathrm{markup},
+    \label{eq:buy_price}
+\end{equation}
+where $c_\mathrm{markup}$ aggregates the fixed per-kWh surcharges: the Ecopower
+service margin (0.004\,\euro/kWh), the green-certificate levy (GSC, 0.011\,\euro/kWh),
+the combined-heat-and-power levy (WKK, 0.00392\,\euro/kWh), the Fluvius Imewo
+distribution tariff (0.05229\,\euro/kWh), the federal energy contribution
+(0.00193\,\euro/kWh), and the special excise duty applicable to commercial consumers
+in the 50\,000--1\,000\,000\,kWh band (0.01139\,\euro/kWh).
+For PV export the feed-in compensation follows
+$\lambda_\mathrm{sell}(t) = 0.00098\,\lambda_\mathrm{EPEX}(t) - 0.015$\,\euro/kWh,
+reduced by the Fluvius Imewo injection tariff of 0.00175\,\euro/kWh levied on
+inverter systems with rated power above 10\,kVA.
+In the MILP, $\lambda_\mathrm{EPEX}(t)$ is the ENTSO-E Belgian day-ahead price
+series retrieved as described above, and 21\,\% VAT is applied to all operational
+cost terms.
 
-% ------------------------------------------------------------
-\subsection{High-Temperature Heat Pump (HTHP)}
-\label{sec:hthp_model}
-% ------------------------------------------------------------
+\paragraph{Cross-validation of the all-in price.}
+The ENTSO-E API returns only the wholesale energy component; the full consumer price
+is obtained by stacking all per-kWh surcharges on top.
+Using the mean 2023 EPEX\,DA price of 97.27\,\euro/MWh derived from the fetched
+price series, the all-in buy price is reconstructed as follows:
 
-The High-Temperature Heat Pump (HTHP) is the primary source of thermal energy in the system,
-converting electrical power into heat at supply temperatures up to $75\,^{\circ}\mathrm{C}$,
-making it suitable for the existing radiator circuit of the M-accent building without requiring
-hydronic renovation.
-The specific unit modelled is the Daikin EWYE-CZ air-to-water heat pump; its full manufacturer
-datasheet is reproduced in Appendix~\ref{appendix:datasheet_hthp}.
+\begin{equation}
+\lambda_\mathrm{all{-}in} =
+  \underbrace{0.00102 \times 97.27 + 0.004}_{\text{Ecopower energy: }0.1032}
++ \underbrace{0.011 + 0.00392 + 0.05229 + 0.00193 + 0.01139}_{\text{fixed surcharges: }0.0805}
+= 0.1837\;\text{\euro/kWh (excl.\ VAT)},
+\label{eq:allin_check}
+\end{equation}
 
-Two ambient-temperature-dependent effects must be captured simultaneously: the change in
-thermodynamic \emph{efficiency} (COP) and the change in physically \emph{available capacity}
-(rated thermal output).
-These are treated as two separate pre-computed parameter arrays, described next, which are then
-embedded as fixed coefficients in the MILP constraints.
+\noindent which gives $0.1837 \times 1.21 = 0.222$\,\euro/kWh including 21\,\% VAT\@.
+Eurostat reports the average non-household electricity price for Belgium in H1\,2023
+at approximately 0.253\,\euro/kWh for the small-commercial consumer band
+(20--500\,MWh/yr, band\,IB)~\cite{Eurostat_nrg_pc_205}, which corresponds to
+the M-accent building's annual consumption of approximately 200\,MWh/yr.
+The reconstructed all-in price of 0.222\,\euro/kWh lies about 12\,\% below this
+reference, which is consistent with the nature of the Ecopower dynamic product:
+the Eurostat band\,IB figure averages across all Belgian suppliers and tariff types
+including fixed-price contracts, which in 2023 still reflected the elevated 2022
+energy-crisis prices. The dynamic Ecopower tariff, by contrast, tracks real-time
+EPEX\,DA prices, which fell sharply in 2023; a lower all-in price relative to the
+Eurostat average is therefore expected.
+
+% ────────────────────────────────────────────────────────────
+
+% ────────────────────────────────────────────────────────────
+\subsection{Solar Irradiance Pre-Processing}
+\label{subsec:pv_irradiance}
+% ────────────────────────────────────────────────────────────
+
+The pre-processing step produces a normalised hourly specific yield:
+\begin{equation}
+    I_\mathrm{sol}(t) \quad [\mathrm{kW/kW_p}], \qquad t = 1, \ldots, 8760,
+    \label{eq:pv_sol_output}
+\end{equation}
+which is stored as a fixed parameter array before the optimisation begins,
+keeping every MILP constraint in which it appears linear.
+
+\subsubsection*{Why not PVGIS}
+
+The European Commission's PVGIS API~\cite{Huld2012PVGIS} was the natural first
+candidate: it provides a free, well-validated hourly AC power series from satellite
+climatology and has been shown to achieve the lowest annual error among 14 widely used
+PV simulation tools~\cite{Milosavljevic2022PVtools}.
+However, PVGIS currently covers only up to 2023, whereas the scenario analysis
+in this thesis requires solar profiles for 2024 and 2025.
+This alignment is essential: because large-scale PV deployment across Europe has
+substantially increased the frequency of near-zero and negative day-ahead electricity
+prices in recent years, using a mismatched solar-year would distort the co-optimisation
+of PV sizing and price-driven dispatch.
+PVGIS was therefore set aside in favour of a pipeline that can deliver up-to-date data
+for any target year.
+Figure~\ref{fig:low_price_hours} illustrates the trend: the number of hours per year
+with a Belgian day-ahead spot price below 30\,\euro/MWh has risen sharply since 2021,
+confirming that year-specific price alignment is material to the optimisation results.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{images/low_price_hours.png}
+    \caption{Number of hours per year with a Belgian day-ahead spot price below
+             30\,\euro/MWh (ENTSO-E transparency platform, Belgium bidding zone).
+             The pronounced increase from 2021 onwards reflects the rapid growth in
+             renewable generation capacity across the Central Western Europe price zone.}
+    \label{fig:low_price_hours}
+\end{figure}
+
+\subsubsection*{Open-Meteo + pvlib pipeline}
+
+Hourly irradiance components (GHI, DNI, DHI), ambient temperature, and 10\,m wind speed
+are retrieved from the Open-Meteo historical archive API for the building site
+($51.18^{\circ}$N, $3.55^{\circ}$E).
+Open-Meteo is a free, open-source reanalysis product that combines ERA5 and
+high-resolution numerical weather prediction (NWP) model output and requires no API key,
+making it straightforward to obtain consistent multi-year time series.
+The archive provides hourly data at roughly 5--11\,km spatial resolution and is
+available for any historical year up to the present.
+
+Plane-of-array (POA) irradiance is then computed locally with \texttt{pvlib} using the
+Hay--Davies transposition model~\cite{Hay1980} for a fixed tilt of $35^{\circ}$
+(the widely cited energy-yield optimum for the Belgian latitude of $51^{\circ}$\,N~\cite{Jacobson2018tilt},
+feasible because the building has a flat roof) and an azimuth of $190^{\circ}$
+(10$^{\circ}$ west of south), read from a Google Maps satellite view of the M-accent roof.
+The Hay--Davies model computes the total plane-of-array irradiance as the sum of three
+components:
+\begin{equation}
+    G_\mathrm{POA}(t) = E_\mathrm{beam}(t) + E_\mathrm{diff}(t) + E_\mathrm{refl}(t).
+    \label{eq:poa_total}
+\end{equation}
+The beam component is projected onto the tilted surface using the ratio $R_b$ of the
+cosine of the angle of incidence $\theta_\mathrm{AOI}$ to the cosine of the solar
+zenith angle $Z$:
+\begin{equation}
+    E_\mathrm{beam}(t) = \mathrm{DNI}(t)\cdot R_b(t),
+    \qquad R_b = \frac{\cos\theta_\mathrm{AOI}}{\cos Z}.
+\end{equation}
+The sky diffuse component is split into a circumsolar fraction (treated as originating
+from the solar disk) and an isotropic background integrated over the visible sky dome,
+weighted by the anisotropy index $A_i = \mathrm{DNI}/E_a$, where $E_a$ is the
+extraterrestrial irradiance, i.e.\ the solar irradiance incident on a surface
+perpendicular to the sun's rays at the top of the atmosphere, which varies
+seasonally as the Earth--Sun distance changes (from roughly
+$1\,322\,\mathrm{W\,m}^{-2}$ in July to $1\,413\,\mathrm{W\,m}^{-2}$ in January)
+and is computed by \texttt{pvlib} following Spencer~(1971):
+\begin{equation}
+    E_\mathrm{diff}(t) = \mathrm{DHI}(t)\left[
+        A_i(t)\,R_b(t)
+        + \bigl(1 - A_i(t)\bigr)\frac{1+\cos\beta}{2}
+    \right].
+    \label{eq:haydavies_diff}
+\end{equation}
+Ground-reflected irradiance is added using a fixed albedo $\rho$:
+\begin{equation}
+    E_\mathrm{refl}(t) = \mathrm{GHI}(t)\cdot\rho\cdot\frac{1-\cos\beta}{2}.
+\end{equation}
+When $A_i\to0$ (overcast sky, no direct beam) the diffuse term reduces to the
+isotropic model; when $A_i\to1$ all diffuse is concentrated around the sun.
+This anisotropic treatment improves accuracy over the pure isotropic model at the cost
+of one additional input (DNI), which Open-Meteo provides directly.
+Solar positions are evaluated at the midpoint of each hour to reduce numerical
+integration error.
+The normalised specific yield is obtained from:
+\begin{equation}
+    I_\mathrm{sol}(t) = \frac{G_\mathrm{POA}(t)}{1000} \cdot \eta_\mathrm{temp}(t) \cdot (1 - \ell),
+\end{equation}
+where $G_\mathrm{POA}(t)$ is the plane-of-array irradiance in W\,m$^{-2}$,
+$\eta_\mathrm{temp}(t)$ is the PVWatts temperature correction factor, and
+$\ell$ is a fixed loss factor covering wiring, shading, soiling, and DC-to-AC
+conversion.
+The temperature correction follows the PVWatts model:
+\begin{equation}
+    \eta_\mathrm{temp}(t) = 1 + \gamma_\mathrm{pdc}\,\bigl(T_\mathrm{cell}(t) - T_\mathrm{ref}\bigr),
+    \quad \gamma_\mathrm{pdc} = -0.004\,^{\circ}\mathrm{C}^{-1},
+    \quad T_\mathrm{ref} = 25\,^{\circ}\mathrm{C},
+    \label{eq:pv_temp_correction}
+\end{equation}
+where the cell temperature $T_\mathrm{cell}(t)$ is pre-computed in the
+pre-processing pipeline using the Faiman~\cite{Faiman2008} model:
+\begin{equation}
+    T_\mathrm{cell}(t) = T_\mathrm{amb}(t)
+        + \frac{G_\mathrm{POA}(t)}{u_0 + u_1\,v_\mathrm{wind}(t)},
+    \quad u_0 = 25\,\mathrm{W\,m^{-2}\,K^{-1}},\;
+           u_1 = 6.84\,\mathrm{W\,s\,m^{-3}\,K^{-1}},
+    \label{eq:faiman}
+\end{equation}
+with $T_\mathrm{amb}(t)$ and $v_\mathrm{wind}(t)$ (10\,m wind speed) both supplied
+by the Open-Meteo fetch.
+Because $T_\mathrm{cell}(t)$ is computed entirely from known climate inputs before
+the optimisation runs, $\eta_\mathrm{temp}(t)$ is a fixed scalar at each time step,
+keeping the constraint $P_\mathrm{PV}(t) = C_\mathrm{PV}\cdot I_\mathrm{sol}(t)$
+linear in the sizing variable $C_\mathrm{PV}$.
+
+\subsubsection*{Loss calibration against 2025 measured data}
+
+The loss factor $\ell$ was calibrated against the 15-minute sub-meter production
+data of the existing 34.63\,kW$_\mathrm{p}$ rooftop system for the full year 2025.
+With the updated PVWatts\,+\,Faiman model (Eqs.~\eqref{eq:pv_temp_correction}
+and~\eqref{eq:faiman}), temperature derating is now captured explicitly by
+$\eta_\mathrm{temp}(t)$, so $\ell$ covers only the remaining fixed losses:
+wiring resistance, inter-row shading, soiling, and DC-to-AC inverter losses.
+Irradiance components (GHI, DNI, DHI), ambient temperature, and 10\,m wind speed
+were obtained from the Open-Meteo historical archive for the site coordinates.
+The factor was found by bisection so that the simulated annual total matched
+the measured 2025 total of 37\,747\,kWh, yielding $\ell = 28.14\,\%$.
+The NREL PVWatts\,v5 documentation~\cite{Dobos2014PVWatts} identifies the
+principal fixed-loss categories for grid-connected rooftop systems and quotes
+the following typical ranges: DC wiring resistance ($1$--$3\,\%$), soiling
+($0$--$5\,\%$, lower in climates with frequent rainfall such as Belgium), inter-row
+shading ($0$--$5\,\%$), and DC-to-AC inverter losses ($2$--$4\,\%$), giving an
+aggregate physical loss budget of roughly $5$--$17\,\%$.
+The calibrated $\ell = 28.14\,\%$ exceeds this physical range primarily because the
+fixed inter-row shading term in the model does not capture the strongly seasonal
+nature of near-horizon shading at this latitude.
+At $51^{\circ}$\,N the solar elevation at solar noon falls below $20^{\circ}$ in
+December, meaning that surrounding buildings and rooftop obstacles that cast no shadow
+in summer can block a significant fraction of the incoming beam in winter.
+This effect manifests as a pronounced positive bias in the out-of-sample validation
+(up to $+80\,\%$ in December; see Section below), and $\ell$ absorbs its
+annual-average impact so that the total energy balance remains correct over the full year.
+
+\subsubsection*{Out-of-sample validation against 2024 measured data}
+
+To confirm that the calibrated pipeline generalises beyond the year used for fitting,
+the loss-corrected model is applied to 2024, a fully independent year, and
+compared against the corresponding 15-minute sub-meter measurements
+(Figures~\ref{fig:openmeteo_daily_2024} and~\ref{fig:openmeteo_monthly_2024}).
+
+Over the full year 2024 the model simulates 32.31\,MWh against a measured total of
+31.78\,MWh, an annual overestimation of $+1.7\,\%$.
+The goodness of fit is quantified by two standard metrics computed from the $N = 8782$
+aligned hourly observations $(\hat{P}_t,\, P_t^\mathrm{meas})$:
+
+\begin{equation}
+    \mathrm{RMSE} = \sqrt{\frac{1}{N}\sum_{t=1}^{N}\!\left(\hat{P}_t - P_t^\mathrm{meas}\right)^2},
+    \label{eq:rmse}
+\end{equation}
+
+\begin{equation}
+    R^2 = 1 - \frac{\displaystyle\sum_{t=1}^{N}\!\left(\hat{P}_t - P_t^\mathrm{meas}\right)^2}
+                   {\displaystyle\sum_{t=1}^{N}\!\left(P_t^\mathrm{meas} - \bar{P}^\mathrm{meas}\right)^2},
+    \label{eq:r2}
+\end{equation}
+
+\noindent where $\hat{P}_t$ is the simulated hourly power, $P_t^\mathrm{meas}$ the
+measured hourly power, and $\bar{P}^\mathrm{meas}$ their mean.
+Applying these to the 2024 data yields $R^2 = 0.789$ and
+$\mathrm{RMSE} = 2.86\,\mathrm{kW}$.
+$R^2$ measures how much of the variance in the measured hourly output is explained by
+the model: a value close to one means the simulated and measured profiles rise and fall
+together, the model captures the right days as sunny or overcast, and the right hours
+as peak or off-peak.
+The RMSE quantifies the typical hour-by-hour deviation in absolute power terms: at
+$2.86\,\mathrm{kW}$ on a $34.63\,\mathrm{kW_p}$ system this corresponds to roughly
+$8\,\%$ of peak capacity, reflecting the coarser spatial resolution of the Open-Meteo
+reanalysis relative to site-specific satellite products.
+
+Monthly breakdown (Figure~\ref{fig:openmeteo_monthly_2024}) reveals a pronounced
+seasonal bias pattern: summer months (April--August) carry a negative bias of
+$1$--$12\,\%$ (model underestimates), while winter months show a strong positive
+overestimation of up to $+80\,\%$ in December and November.
+This seasonal asymmetry is a known characteristic of ERA5-based reanalysis products at
+northern latitudes, where low solar elevation angles and frequent cloud and fog events
+are difficult to reproduce at coarse spatial resolution.
+Because the winter months contribute only a small fraction of the annual yield, the
+annual error remains low ($+1.7\,\%$), and the bias has a limited effect on the
+optimisation outcomes.
+
+Figure~\ref{fig:openmeteo_daily_profiles_2024} overlays the simulated and measured intraday
+power profiles for one representative day per month.
+In the summer months the hourly Open-Meteo profile tracks the smooth bell-shaped generation
+curve reasonably well.
+In the winter months the model correctly identifies the midday generation window but
+overestimates the magnitude, consistent with the positive winter bias noted above.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/openmeteo_2024_daily_timeseries.pdf}
+    \caption{Full-year daily PV energy comparison for 2024: Open-Meteo + pvlib simulated (orange)
+             versus 15-minute sub-meter measurements (blue) for the
+             34.63\,kW$_\mathrm{p}$ rooftop system.
+             The inset reports the annual totals, overall bias, and goodness-of-fit
+             statistics ($R^2 = 0.789$, RMSE $= 2.86\,\mathrm{kW}$).}
+    \label{fig:openmeteo_daily_2024}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/openmeteo_2024_monthly_bar.pdf}
+    \caption{Monthly PV energy totals for 2024: Open-Meteo + pvlib simulated (orange) versus
+             measured (blue).
+             Percentage labels show the monthly bias (simulated $-$ measured).
+             The model was calibrated on 2025 data ($\ell = 28.14\,\%$); this comparison
+             constitutes an out-of-sample validation on the preceding year.}
+    \label{fig:openmeteo_monthly_2024}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/daily_openmeteo_vs_measured_2024.png}
+    \caption{Intraday power profiles for one representative day per month (2024).
+             Blue: measured 15-minute power (kW); orange: Open-Meteo + pvlib hourly simulation.
+             Daily energy totals are annotated in each panel.
+             Summer days show good shape agreement; winter days reflect the coarser
+             spatial resolution of the reanalysis product relative to site conditions.}
+    \label{fig:openmeteo_daily_profiles_2024}
+\end{figure}
+
+% ────────────────────────────────────────────────────────────
+\subsection{HTHP Time-Series Pre-Processing}
+\label{sub:hthp_preprocess}
+% ────────────────────────────────────────────────────────────
+
+The HTHP model requires two ambient-temperature-dependent parameter arrays that must
+be computed from climate data before the optimisation begins: the hourly COP time
+series and the hourly capacity-fraction time series.
+Both are derived from the same ambient temperature vector $T_\mathrm{amb}(t)$ supplied
+by the Open-Meteo\,+\,pvlib pipeline (Section~\ref{subsec:pv_irradiance}) and are passed
+to the model as fixed scalar parameters, keeping every MILP constraint linear.
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsubsection{Pre-Processing Step 1: Lorentz COP Time Series}
@@ -1503,7 +1903,14 @@ As established in Section~\ref{sub:lorentz_model}, the Lorentz model expresses t
 of a heat pump in terms of the log-mean temperatures on the condenser (sink) side and the
 evaporator (source) side.
 With a fixed supply temperature $T_\mathrm{sup}$ [$^{\circ}$C] and fixed return temperature
-$T_\mathrm{ret}$ [$^{\circ}$C], the log-mean condenser temperature is a constant:
+$T_\mathrm{ret}$ [$^{\circ}$C], the log-mean condenser temperature is a constant.
+For the M-accent system, $T_\mathrm{sup} = 60\,^{\circ}$C is taken directly from the
+measured heat demand data (Section~\ref{subsec:thermal_demand}), which shows a consistent
+supply temperature of 60\,°C.
+The return temperature is then $T_\mathrm{ret} = T_\mathrm{sup} - \Delta T_\mathrm{HC}
+= 60 - 20 = 40\,^{\circ}$C, where $\Delta T_\mathrm{HC} = 20\,\mathrm{K}$ is the
+design temperature drop across the radiators as specified in the M-accent P\&ID.
+These values yield $T_\mathrm{h,lm} \approx 323\,\mathrm{K}$:
 
 \begin{equation}
     T_{\mathrm{h,lm}} =
@@ -1525,7 +1932,9 @@ The ideal Lorentz COP at each hour is therefore:
 
 The actual COP is obtained by scaling with the Lorentz efficiency factor
 $\eta_\mathrm{HP}$, calibrated from manufacturer performance data
-(Appendix~\ref{appendix:datasheet_hthp}) at the reference operating point:
+(Appendix~\ref{appendix:datasheet_hthp}) at the standard EN\,14511 reference operating
+point A7/W40--45: ambient air at $T_\mathrm{amb} = 7\,^{\circ}$C, condenser return at
+$T_\mathrm{ret} = 40\,^{\circ}$C, and condenser supply at $T_\mathrm{sup} = 45\,^{\circ}$C:
 
 \begin{equation}
     \mathrm{COP}(t) = \eta_\mathrm{HP} \cdot \mathrm{COP}_\mathrm{Lorenz}(t),
@@ -1536,7 +1945,7 @@ $\eta_\mathrm{HP}$, calibrated from manufacturer performance data
 \noindent Because both $T_\mathrm{h,lm}$ and $\eta_\mathrm{HP}$ are constants, and
 $T_\mathrm{amb}(t)$ is a known input time series, $\mathrm{COP}(t)$ is fully determined
 before the optimisation begins.
-It is passed to Gurobi as a \emph{scalar parameter} at each time step, making every
+It is passed to the model as a \emph{scalar parameter} at each time step, making every
 constraint in which it appears linear.
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1565,7 +1974,10 @@ The regression is forced through the reference point $(T_\mathrm{ref} = 7\,^{\ci
 \noindent clipped to the manufacturer operating envelope:
 $\kappa(t) \in [0.537,\; 1.274]$ (corresponding to
 $T_\mathrm{amb} \in [-15\,^{\circ}\mathrm{C},\; +20\,^{\circ}\mathrm{C}]$).
-The fit achieves $R^2 = 0.997$.
+The fit achieves $R^2 = 0.997$, meaning the linear model explains 99.7\,\% of the
+variance in the manufacturer capacity data across the operating temperature range,
+confirming that the capacity derating is well described by a linear function of ambient
+temperature over the relevant operating envelope.
 Like $\mathrm{COP}(t)$, the array $\kappa(t)$ is pre-computed and enters the MILP
 as a fixed coefficient.
 
@@ -1574,31 +1986,180 @@ A value $\kappa < 1$ means the unit can deliver less than its nameplate output a
 conditions; a value $\kappa > 1$ means it can slightly exceed nameplate at mild conditions.
 The effective weather-derated capacity at any hour is therefore
 $Q_\mathrm{hp}^{*} \cdot \kappa(t)$ [kW].
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth]{images/heat_pump_performance.png}
+    \caption{Heat pump performance characteristics used for the HTHP model. Left: fitted capacity-fraction vs ambient temperature from manufacturer simulation data, which yields the slope $k = 0.02106\,^{\circ}\mathrm{C}^{-1}$ and the clipped operating envelope. Right: part-load performance illustrating the degradation coefficient $C_d$ used to represent fixed auxiliary electrical overhead at part-load.}
+    \label{fig:hthp_performance}
+\end{figure}
+
+% ============================================================
+
+\section{Component Models}
+\label{sec:component_models}
+% ============================================================
+
+This section presents the linearised mathematical models for each technology in the candidate system.
+All models are formulated as linear equality and inequality constraints suitable for direct embedding in the MILP problem.
+
+% ------------------------------------------------------------
+\subsection{High-Temperature Heat Pump (HTHP)}
+\label{sec:hthp_model}
+% ------------------------------------------------------------
+
+The High-Temperature Heat Pump (HTHP) is the primary source of thermal energy in the system,
+converting electrical power into heat at supply temperatures up to $75\,^{\circ}\mathrm{C}$,
+making it suitable for the existing radiator circuit of the M-accent building without requiring
+hydronic renovation.
+The specific unit modelled is the Daikin EWYE-CZ air-to-water heat pump; its full manufacturer
+datasheet is shown in Appendix~\ref{appendix:datasheet_hthp}.
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\subsubsection{MILP Decision Variables}
+\subsubsection{Governing Model Equations}
+\label{sub:hthp_equations}
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-The MILP introduces the following variables for the HTHP:
+Three equations govern the HTHP model.
+The first two capture ambient-temperature-dependent effects and are fully derived in
+Section~\ref{sub:hthp_preprocess}; they are reproduced here for reference.
+The thermodynamic efficiency is described by the Lorentz-calibrated COP
+(Eq.~\eqref{eq:cop_actual_t}):
+
+\begin{equation}
+    \mathrm{COP}(t) = \eta_\mathrm{HP} \cdot \mathrm{COP}_\mathrm{Lorenz}(t),
+    \qquad \eta_\mathrm{HP} = 0.361. \tag{\ref{eq:cop_actual_t}}
+\end{equation}
+
+\noindent The weather-dependent capacity derating is described by the linear regression
+fit to manufacturer data (Eq.~\eqref{eq:capfrac}):
+
+\begin{equation}
+    \kappa(t) = 1 + k\bigl(T_\mathrm{amb}(t) - T_\mathrm{ref}\bigr),
+    \quad k = 0.02106\,^{\circ}\mathrm{C}^{-1}, \tag{\ref{eq:capfrac}}
+\end{equation}
+
+\noindent so that the available thermal capacity at time step $t$ is
+$Q_\mathrm{hp}^{*}\cdot\kappa(t)$ [kW$_\mathrm{th}$].
+The third equation links electrical power consumption to thermal output.
+The heat pump is inverter-driven, so fixed auxiliary consumers (circulation pump,
+controls, fans) are active whenever it runs, independently of compressor modulation.
+Following the EN~14511 part-load degradation formalism
+(Section~\ref{sub:part_load_modeling}), the electrical draw is split into a fixed
+fraction and a variable fraction:
+
+\begin{equation}
+    P_\mathrm{el,HP}(t)\cdot\mathrm{COP}(t)
+    = C_\mathrm{d}\,\tilde{Q}_\mathrm{hp}(t)\cdot\kappa(t)
+      + \bigl(1-C_\mathrm{d}\bigr)\,Q_\mathrm{HP}(t),
+    \quad C_\mathrm{d} = 0.10.
+    \label{eq:hthp_power}
+\end{equation}
+
+\noindent At full load this reduces to the ideal relation
+$P_\mathrm{el,HP} = Q_\mathrm{HP}/\mathrm{COP}$; at part load the $C_\mathrm{d}$
+term adds a modest overhead that slightly reduces the effective part-load COP.
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{Fixed Parameter Arrays and Inputs}
+\label{sub:hthp_params}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+All fixed coefficients embedded in the HTHP constraints are listed in
+Table~\ref{tab:hthp_inputs}.
+Because $\mathrm{COP}(t)$ and $\kappa(t)$ are pre-computed from known climate data
+before the optimisation begins, every constraint in which they appear is linear in the
+decision variables.
+
+\begin{table}[H]
+\centering
+\caption{Fixed parameters and pre-computed input arrays for the HTHP MILP model.}
+\label{tab:hthp_inputs}
+\begin{tabular}{lllp{5cm}}
+\hline
+\textbf{Symbol} & \textbf{Value / Type} & \textbf{Source} & \textbf{Role in model} \\
+\hline
+$\mathrm{COP}(t)$ & hourly array & Eq.~\eqref{eq:cop_actual_t}, Section~\ref{sub:hthp_cop_preprocess}
+    & Thermodynamic efficiency \\
+$\kappa(t)$ & hourly array & Eq.~\eqref{eq:capfrac}, Section~\ref{sub:hthp_capfrac}
+    & Weather-capacity derating factor \\
+$f_\mathrm{min}$ & 0.222 & Manufacturer data
+    & Minimum allowed load fraction \\
+$C_\mathrm{d}$ & 0.10 & EN\,14511 formalism
+    & Fixed auxiliary overhead coefficient \\
+$Q_\mathrm{hp,max}^{*}$ & design envelope & Section~\ref{sec:econ_params}
+    & Upper bound on sizing variable \\
+\hline
+\end{tabular}
+\end{table}
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{Decision Variables}
+\label{sub:hthp_vars}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 \begin{itemize}
-    \item $Q_\mathrm{hp}^{*} \in [0,\; Q_\mathrm{hp,max}^{*}]$ [kW$_\mathrm{th}$] ---
+
+    \item $y_\mathrm{HP} \in \{0,1\}$: binary installation decision (1 if the heat pump
+          is included in the system, 0 otherwise).
+          This variable is required to correctly model the fixed-cost component of the
+          annualised capital expenditure: the total HP cost is split into a fixed term
+          incurred only if the technology is installed and a capacity-proportional term,
+          \begin{equation}
+              C_\mathrm{HP,annual} = \alpha_\mathrm{HP,fixed}\,y_\mathrm{HP}
+                                   + \alpha_\mathrm{HP,var}\,Q_\mathrm{hp}^{*},
+              \label{eq:hthp_capex}
+          \end{equation}
+          where $\alpha_\mathrm{HP,fixed}$ and $\alpha_\mathrm{HP,var}$ are derived
+          from the linear-affine CAPEX fit of Section~\ref{sub:capex_model},
+          Eq.~\eqref{eq:capex_affine}.
+          Without $y_\mathrm{HP}$, the fixed cost would either always be charged or
+          always be omitted regardless of whether the solver installs the unit.
+
+    \item $Q_\mathrm{hp}^{*} \in [0,\; Q_\mathrm{hp,max}^{*}]$ [kW$_\mathrm{th}$]:
           continuous sizing variable (rated thermal output at reference conditions).
-    \item $u_\mathrm{HP}(t) \in \{0,1\}$ --- binary on/off commitment at time step $t$.
-    \item $\tilde{Q}_\mathrm{hp}(t) \geq 0$ [kW$_\mathrm{th}$] --- auxiliary continuous
-          variable equal to $Q_\mathrm{hp}^{*}$ when $u_\mathrm{HP}(t)=1$ and zero
-          otherwise (linearises the product $Q_\mathrm{hp}^{*} \cdot u_\mathrm{HP}(t)$).
-    \item $Q_\mathrm{HP}(t) \geq 0$ [kW$_\mathrm{th}$] --- actual thermal output delivered.
-    \item $P_\mathrm{el,HP}(t) \geq 0$ [kW$_\mathrm{el}$] --- electrical power consumed.
+
+    \item $u_\mathrm{HP}(t) \in \{0,1\}$, $t=1,\ldots,8\,760$: binary on/off
+          commitment.
+          Without this variable the minimum-load constraint would read
+          $Q_\mathrm{HP}(t) \geq f_\mathrm{min}\,Q_\mathrm{hp}^{*}\,\kappa(t)$,
+          a strictly positive lower bound for any non-zero sized unit that forces
+          the heat pump on at every time step.
+          Likewise, the fixed auxiliary overhead in Eq.~\eqref{eq:hthp_power} would
+          remain active at idle, spuriously drawing electricity.
+          The binary resolves both issues: when $u_\mathrm{HP}(t)=0$ the effective
+          capacity is zero, making all bounds non-binding.
+          Introducing 8\,760 per-timestep binaries carries a significant computational
+          price, unlike the five technology-selection binaries
+          ($y_\mathrm{PV}$, $y_\mathrm{bat}$, $y_\mathrm{HP}$, $y_\mathrm{ltes}$,
+          $y_\mathrm{wtes}$), which add negligible combinatorial complexity, each
+          additional operational binary can exponentially increase the branch-and-bound
+          search tree and this block dominates solver cost.
+
+    \item $\tilde{Q}_\mathrm{hp}(t) \geq 0$ [kW$_\mathrm{th}$]: auxiliary continuous
+          variable that replaces the bilinear product
+          $Q_\mathrm{hp}^{*}\cdot u_\mathrm{HP}(t)$.
+          Because $Q_\mathrm{hp}^{*}$ is continuous and $u_\mathrm{HP}(t)$ is binary,
+          their product cannot appear directly in an MILP.
+          The big-$M$ constraints of Section~\ref{sub:hthp_bigm} force
+          $\tilde{Q}_\mathrm{hp}(t) = Q_\mathrm{hp}^{*}$ when on and
+          $\tilde{Q}_\mathrm{hp}(t) = 0$ when off, replacing the product exactly.
+
+    \item $Q_\mathrm{HP}(t) \geq 0$ [kW$_\mathrm{th}$]: actual thermal output
+          delivered at time step $t$.
+
+    \item $P_\mathrm{el,HP}(t) \geq 0$ [kW$_\mathrm{el}$]: electrical power consumed
+          at time step $t$.
+
 \end{itemize}
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsubsection{On/Off Linearisation (Big-$M$)}
+\label{sub:hthp_bigm}
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-The auxiliary variable $\tilde{Q}_\mathrm{hp}(t)$ linearises the bilinear product
-$Q_\mathrm{hp}^{*} \cdot u_\mathrm{HP}(t)$ via the standard three-constraint big-$M$
-formulation:
+The three linear constraints that force $\tilde{Q}_\mathrm{hp}(t)$ to equal
+$Q_\mathrm{hp}^{*}$ when $u_\mathrm{HP}(t)=1$ and zero when $u_\mathrm{HP}(t)=0$
+are:
 
 \begin{align}
     \tilde{Q}_\mathrm{hp}(t) &\leq Q_\mathrm{hp,max}^{*}\, u_\mathrm{HP}(t)
@@ -1610,17 +2171,24 @@ formulation:
         \label{eq:hthp_bigm3}
 \end{align}
 
-\noindent When $u_\mathrm{HP}(t)=0$, constraints \eqref{eq:hthp_bigm1} and
-\eqref{eq:hthp_bigm3} together force $\tilde{Q}_\mathrm{hp}(t)=0$.
+\noindent When $u_\mathrm{HP}(t)=0$, constraint \eqref{eq:hthp_bigm1} gives
+$\tilde{Q}_\mathrm{hp}(t) \leq 0$, which combined with the non-negativity declaration
+$\tilde{Q}_\mathrm{hp}(t) \geq 0$ forces $\tilde{Q}_\mathrm{hp}(t)=0$ exactly.
+Without the non-negativity bound, equation~\eqref{eq:hthp_bigm1} alone would only
+provide an upper bound and could not prevent $\tilde{Q}_\mathrm{hp}(t)$ from becoming
+negative.
 When $u_\mathrm{HP}(t)=1$, constraints \eqref{eq:hthp_bigm2} and \eqref{eq:hthp_bigm3}
 together force $\tilde{Q}_\mathrm{hp}(t)=Q_\mathrm{hp}^{*}$.
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\subsubsection{Thermal Output Bounds}
+\subsubsection{MILP Constraints}
+\label{sub:hthp_constraints}
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-The actual thermal output is bounded by the weather-derated capacity from above and by a
-minimum load fraction $f_\mathrm{min}$ from below (set to $0.222$ from manufacturer data):
+Three operational constraints bound $Q_\mathrm{HP}(t)$ and $P_\mathrm{el,HP}(t)$.
+The thermal output is bounded from above by the weather-derated capacity and from
+below by the minimum load fraction $f_\mathrm{min}$ (set to $0.222$ from manufacturer
+data):
 
 \begin{align}
     Q_\mathrm{HP}(t) &\leq \tilde{Q}_\mathrm{hp}(t)\cdot\kappa(t)
@@ -1629,44 +2197,24 @@ minimum load fraction $f_\mathrm{min}$ from below (set to $0.222$ from manufactu
         \label{eq:hthp_qmin}
 \end{align}
 
-\noindent Since $\kappa(t)$ is a pre-computed scalar, both constraints remain linear in
-the decision variables $Q_\mathrm{HP}(t)$ and $\tilde{Q}_\mathrm{hp}(t)$.
-The lower bound prevents unrealistically shallow cycling; the electric boiler covers any
-residual demand that the HTHP cannot meet at minimum load.
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\subsubsection{Electrical Power with On/Off Cycling Penalty}
-\label{sub:hthp_power}
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-A purely ideal model would set $P_\mathrm{el,HP}(t) = Q_\mathrm{HP}(t)/\mathrm{COP}(t)$.
-However, on/off cycling incurs compressor restart losses that cause the unit to consume
-some electrical power even below its minimum thermal output.
-Following the EN~14511 part-load degradation approach reviewed in
-Section~\ref{sub:part_load_modeling}, this is captured by a degradation coefficient
-$C_\mathrm{d}$ that splits the electrical draw into a fixed fraction proportional to the
-\emph{derated rated capacity} and a variable fraction proportional to the \emph{actual output}:
+\noindent The lower bound prevents unrealistically shallow part-load operation.
+When the unit is off, $\tilde{Q}_\mathrm{hp}(t)=0$ collapses both bounds to
+$Q_\mathrm{HP}(t)=0$ exactly.
+The electrical power consumption is governed by Eq.~\eqref{eq:hthp_power},
+repeated here as a constraint:
 
 \begin{equation}
     P_\mathrm{el,HP}(t)\cdot\mathrm{COP}(t)
     = C_\mathrm{d}\,\tilde{Q}_\mathrm{hp}(t)\cdot\kappa(t)
-      + \bigl(1-C_\mathrm{d}\bigr)\,Q_\mathrm{HP}(t),
-    \quad C_\mathrm{d} = 0.10.
-    \label{eq:hthp_power}
+      + \bigl(1-C_\mathrm{d}\bigr)\,Q_\mathrm{HP}(t). \tag{\ref{eq:hthp_power}}
 \end{equation}
 
-\noindent Because $\mathrm{COP}(t)$ and $\kappa(t)$ are fixed parameters, the right-hand
-side is linear in $\tilde{Q}_\mathrm{hp}(t)$ and $Q_\mathrm{HP}(t)$, and the
-left-hand side is linear in $P_\mathrm{el,HP}(t)$.
-The constraint is therefore directly embeddable in the MILP.
-
-To verify consistency: at full load ($Q_\mathrm{HP} = \tilde{Q}_\mathrm{hp}\cdot\kappa$)
-equation~\eqref{eq:hthp_power} reduces to
-$P_\mathrm{el,HP}\cdot\mathrm{COP} = \tilde{Q}_\mathrm{hp}\cdot\kappa = Q_\mathrm{HP}$,
-i.e.\ $P_\mathrm{el,HP} = Q_\mathrm{HP}/\mathrm{COP}$, recovering the ideal relation.
-At output below rated, the $C_\mathrm{d}$ term adds a fixed overhead that reduces the
-effective part-load COP, consistent with the cycling-loss mechanism described in
-Section~\ref{sub:part_load_modeling}.
+\noindent Since $\mathrm{COP}(t)$ and $\kappa(t)$ are fixed scalars, all three
+constraints are linear in the decision variables.
+Using $\tilde{Q}_\mathrm{hp}(t)$ rather than $Q_\mathrm{hp}^{*}$ in the overhead
+term ensures that $P_\mathrm{el,HP}(t)=0$ when the unit is off; had $Q_\mathrm{hp}^{*}$
+appeared instead, the fixed term $C_\mathrm{d}\,Q_\mathrm{hp}^{*}\cdot\kappa(t)$
+would draw electricity at every idle step.
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \subsubsection{Summary of HTHP Constraints}
@@ -1711,78 +2259,110 @@ supplying the HTHP, BESS, and building loads.
 Its MILP representation is intentionally simple: all complex photovoltaic physics
 (plane-of-array irradiance, cell temperature derating, DC-to-AC inverter losses,
 soiling, and wiring losses) are handled entirely in a pre-processing step using the
-PVGIS tool, so only a single linear constraint is needed inside the optimiser.
+Open-Meteo\,+\,pvlib pipeline (see Section~\ref{subsec:pv_irradiance}), so only a single
+linear constraint is needed inside the optimiser.
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\subsubsection{Pre-Processing: Normalised AC Output from PVGIS}
+\subsubsection{Governing Model Equations}
+\label{sub:pv_equations}
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-The European Commission's PVGIS API~\cite{Huld2012PVGIS} is used to generate an
-hourly AC power time series for the M-accent building location
-(Brussels, $50.85^{\circ}$N, $4.35^{\circ}$E) for the reference year 2023.
-The query is submitted for a normalised 1\,kW$_\mathrm{p}$ system with a fixed tilt
-of $35^{\circ}$ and a total system loss of 14\,\% (covering wiring, shading, soiling,
-and temperature derating).
-PVGIS internally computes the full PV yield chain --- irradiance transposition to the
-tilted plane, cell temperature correction, and DC-to-AC conversion --- and returns the
-result as a single hourly array:
+One equation governs the PV model.
+The AC power injected by the array at each time step is the product of the
+pre-computed normalised specific yield $I_\mathrm{sol}(t)$ [kW/kW$_\mathrm{p}$]
+and the installed peak capacity $C_\mathrm{PV}$ [kW$_\mathrm{p}$]:
 
-\begin{equation}
-    I_\mathrm{sol}(t) \quad [\mathrm{kW/kW_p}], \qquad t = 1, \ldots, 8760.
-    \label{eq:pvgis_output}
-\end{equation}
-
-\noindent This normalised specific yield is stored as a fixed parameter array before
-the optimisation begins.
-Delegating the PV physics to PVGIS avoids introducing any non-linear terms
-(e.g.\ the cell temperature correction $1 + \gamma_\mathrm{pdc}(T_\mathrm{cell}-T_\mathrm{ref})$)
-into the MILP, while still capturing realistic seasonal and diurnal generation profiles.
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\subsubsection{Decision Variable and Technology-Selection Binary}
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-The investment decision is the \textbf{installed peak capacity}:
-\begin{equation}
-    C_\mathrm{PV} \in [0,\; C_\mathrm{PV,max}] \quad [\mathrm{kW_p}],
-    \label{eq:pv_sizing}
-\end{equation}
-with $C_\mathrm{PV,max} = 50\,\mathrm{kW_p}$ reflecting the available roof area of the
-M-accent building.
-
-A binary variable $y_\mathrm{PV} \in \{0,1\}$ indicates whether PV is installed at all.
-This is required because the capital cost function is concave (economies of scale,
-Section~\ref{sub:pv_capex}): without the binary, the optimizer could exploit the lower
-per-unit cost at large capacity to install a negligibly small system at zero cost.
-The technology-selection constraint is:
-\begin{equation}
-    C_\mathrm{PV} \leq C_\mathrm{PV,max}\, y_\mathrm{PV}.
-    \label{eq:pv_select}
-\end{equation}
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\subsubsection{Hourly Generation Constraint}
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-The AC power injected by the PV array at each time step is simply:
 \begin{equation}
     P_\mathrm{PV}(t) = I_\mathrm{sol}(t)\cdot C_\mathrm{PV},
     \qquad \forall\, t.
     \label{eq:pv_power}
 \end{equation}
 
-\noindent Since $I_\mathrm{sol}(t)$ is a known scalar parameter, this is linear in the
-single decision variable $C_\mathrm{PV}$.
+\noindent Because $I_\mathrm{sol}(t)$ is a fixed scalar at every time step,
+the constraint is linear in the single sizing variable $C_\mathrm{PV}$.
 $P_\mathrm{PV}(t)$ enters the electrical energy balance
 (Section~\ref{sec:energy_balance}) as a generation term.
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\subsubsection{Grid-Injection Limit}
+\subsubsection{Fixed Parameter Arrays and Inputs}
+\label{sub:pv_params}
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+All fixed coefficients embedded in the PV constraints are listed in
+Table~\ref{tab:pv_inputs}.
+Because $I_\mathrm{sol}(t)$ is pre-computed from known climate data before the
+optimisation begins, every constraint in which it appears is linear in the decision
+variables.
+
+\begin{table}[H]
+\centering
+\caption{Fixed parameters and pre-computed input arrays for the PV MILP model.}
+\label{tab:pv_inputs}
+\begin{tabular}{lllp{4.8cm}}
+\hline
+\textbf{Symbol} & \textbf{Value / Type} & \textbf{Source} & \textbf{Role in model} \\
+\hline
+$I_\mathrm{sol}(t)$ & hourly array [kW/kW$_\mathrm{p}$]
+    & Eq.~\eqref{eq:pv_sol_output}, Section~\ref{subsec:pv_irradiance}
+    & Normalised specific yield \\
+$C_\mathrm{PV,max}$ & 50\,kW$_\mathrm{p}$
+    & Available roof area (M-accent)
+    & Upper bound on sizing variable \\
+
+\hline
+\end{tabular}
+\end{table}
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{Decision Variables}
+\label{sub:pv_vars}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+\begin{itemize}
+
+    \item $y_\mathrm{PV} \in \{0,1\}$: binary installation decision (1 if PV is
+          included in the system, 0 otherwise).
+          This variable is required to correctly model the fixed-cost component of the
+          annualised capital expenditure: the total PV cost is split into a fixed term
+          incurred only if the technology is installed and a capacity-proportional term,
+          \begin{equation}
+              C_\mathrm{PV,annual} = \alpha_\mathrm{PV,fixed}\,y_\mathrm{PV}
+                                   + \alpha_\mathrm{PV,var}\,C_\mathrm{PV},
+              \label{eq:pv_capex_lin}
+          \end{equation}
+          where $\alpha_\mathrm{PV,fixed}$ and $\alpha_\mathrm{PV,var}$ are derived
+          from the linear-affine CAPEX fit of Section~\ref{sub:pv_capex}.
+          Without $y_\mathrm{PV}$, a solver choosing $C_\mathrm{PV}=0$ would still
+          incur the fixed cost term, incorrectly penalising the no-PV outcome.
+
+    \item $C_\mathrm{PV} \in [0,\; C_\mathrm{PV,max}]$ [kW$_\mathrm{p}$]:
+          continuous sizing variable (installed peak capacity).
+
+    \item $P_\mathrm{PV}(t) \geq 0$ [kW]: hourly AC power output, determined at each
+          time step by Eq.~\eqref{eq:pv_power}.
+
+\end{itemize}
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{MILP Constraints}
+\label{sub:pv_constraints}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Three constraints govern the PV block.
+The technology-selection constraint enforces consistency between the binary and the
+sizing variable, ensuring no capacity is installed when $y_\mathrm{PV}=0$:
+\begin{equation}
+    C_\mathrm{PV} \leq C_\mathrm{PV,max}\, y_\mathrm{PV}.
+    \label{eq:pv_select}
+\end{equation}
+
+\noindent The hourly generation constraint (Eq.~\eqref{eq:pv_power}) links the
+sizing decision to the power output at each time step and is linear because
+$I_\mathrm{sol}(t)$ is a pre-computed scalar.
+
 To prevent the model from selling grid-purchased electricity at a profit (a physically
-impossible arbitrage), the power sold to the grid is capped at the sum of PV generation
-and battery discharge:
+impossible arbitrage), the power sold to the grid is capped at the sum of local
+generation and battery discharge:
 \begin{equation}
     P_\mathrm{sell}(t) \leq P_\mathrm{PV}(t) + P_\mathrm{bat,dis}(t),
     \qquad \forall\, t.
@@ -1790,118 +2370,1360 @@ and battery discharge:
 \end{equation}
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\subsubsection{Piecewise-Linear CAPEX with Economies of Scale}
-\label{sub:pv_capex}
+\subsubsection{Summary of PV Constraints}
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-In practice, larger PV installations benefit from lower specific installation costs.
-This is modelled with a \textbf{power-law cost curve}~\cite{Shafer2006EOS} using a
-scaling exponent of $0.6$ (the industry-standard ``six-tenths rule''):
+Table~\ref{tab:pv_constraints} collects all PV decision variables, parameters,
+and constraints embedded in the MILP.
 
-\begin{equation}
-    \mathrm{CAPEX}_\mathrm{PV}(C_\mathrm{PV})
-    = c_\mathrm{ref}\, C_\mathrm{ref}
-      \left(\frac{C_\mathrm{PV}}{C_\mathrm{ref}}\right)^{0.6}
-    \quad [\text{\euro/yr}],
-    \label{eq:pv_capex_eos}
-\end{equation}
-
-\noindent where $c_\mathrm{ref} = 63.9\,\text{\euro/kW}_\mathrm{p}/\text{yr}$
-(annualised from $900\,\text{\euro/kW}_\mathrm{p}$ over 25\,yr at 5\,\% discount rate)
-and the anchor capacity is $C_\mathrm{ref} = 10\,\mathrm{kW_p}$.
-Because equation~\eqref{eq:pv_capex_eos} is non-linear, it is approximated by a
-\textbf{piecewise-linear} (PWL) function using Gurobi's native
-\texttt{addGenConstrPWL} with breakpoints clustered near zero (quadratic spacing)
-where the curve bends most steeply.
-The PWL approximation preserves the concavity of the cost curve and therefore does
-not affect the global optimality guarantee of the MILP solver.
+\begin{table}[H]
+\centering
+\caption{Complete PV  constraint set embedded in the MILP.
+         $I_\mathrm{sol}(t)$ is a pre-computed parameter array from the Open-Meteo\,+\,pvlib
+         pipeline (Section~\ref{subsec:pv_irradiance});
+         all other symbols are MILP variables.}
+\label{tab:pv_constraints}
+\begin{tabular}{llp{5.5cm}}
+\hline
+\textbf{Label} & \textbf{Expression} & \textbf{Role} \\
+\hline
+\eqref{eq:pv_select}
+    & $C_\mathrm{PV} \leq C_\mathrm{PV,max}\,y_\mathrm{PV}$
+    & Forces zero capacity if PV not selected \\
+\eqref{eq:pv_power}
+    & $P_\mathrm{PV}(t) = I_\mathrm{sol}(t)\cdot C_\mathrm{PV}$
+    & Hourly AC generation (linear in $C_\mathrm{PV}$) \\
+\eqref{eq:pv_sellcap}
+    & $P_\mathrm{sell}(t) \leq P_\mathrm{PV}(t) + P_\mathrm{bat,dis}(t)$
+    & Prevents arbitrage: injection from local sources only \\
+\hline
+\end{tabular}
+\end{table}
 
 % ------------------------------------------------------------
 \subsection{Battery Energy Storage System (BESS)}
 \label{sec:bess_model}
 % ------------------------------------------------------------
 
-% TODO: Sizing variables: energy capacity E* [kWh] and rated power P* [kW]
-% TODO: State-of-charge (SOC) dynamics:  SOC(t+1) = SOC(t) + eta_ch*P_ch(t)*dt - P_dis(t)/eta_dis*dt
-% TODO: SOC bounds: SOC_min * E* <= SOC(t) <= SOC_max * E*
-% TODO: Charge/discharge power limits: 0 <= P_ch(t) <= P* * u_ch(t)
-%                                      0 <= P_dis(t) <= P* * u_dis(t)
-% TODO: Mutual exclusivity constraint: u_ch(t) + u_dis(t) <= 1
-% TODO: Cyclic boundary condition: SOC(T) = SOC(1)
+The BESS stores surplus PV generation for later use and performs price-arbitrage by
+charging during cheap off-peak hours and discharging during expensive peak hours.
+It also provides peak-shaving services that directly reduce the monthly capacity
+network tariff $c_\mathrm{cap}$.
+The electrochemical physics (cell voltage, temperature derating, cycle ageing) are
+abstracted into two one-way efficiencies and a fixed C-rate, keeping the formulation
+fully linear.
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{Governing Model Equations}
+\label{sub:bess_equations}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+The central equation of the BESS model is the state-of-charge (SoC) energy
+balance, which links the storage level at each hour to the charge and discharge
+power flows:
+\begin{equation}
+    E_\mathrm{bat}(t) = E_\mathrm{bat}(t-1)
+        + \eta_\mathrm{ch}\,P_\mathrm{bat,ch}(t)\,\Delta t
+        - \frac{1}{\eta_\mathrm{dis}}\,P_\mathrm{bat,dis}(t)\,\Delta t,
+    \qquad \forall\,t.
+    \label{eq:bess_soc_dyn}
+\end{equation}
+The one-way losses are applied asymmetrically: the charging efficiency
+$\eta_\mathrm{ch}$ reduces the energy actually stored per kWh injected, while
+the discharge efficiency $\eta_\mathrm{dis}$ increases the energy that must be
+drawn from storage to deliver one kWh to the bus.
+Both coefficients are fixed scalars, so every term in
+Eq.~\eqref{eq:bess_soc_dyn} is linear in the MILP variables.
+
+The annualised BESS investment cost follows the same linear-affine structure
+used for all other technologies (Section~\ref{sub:capex_model}):
+\begin{equation}
+    C_\mathrm{bat,annual}
+        = \alpha_\mathrm{bat,fixed}\,y_\mathrm{bat}
+        + \alpha_\mathrm{bat,var}\,C_\mathrm{bat},
+    \label{eq:bess_capex}
+\end{equation}
+where $y_\mathrm{bat}$ is the installation binary introduced below.
+Without $y_\mathrm{bat}$, a solver that sets $C_\mathrm{bat} = 0$ would still
+incur the fixed cost term, incorrectly penalising the no-BESS outcome.
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{Fixed Parameters and Inputs}
+\label{sub:bess_params}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+All scalar coefficients embedded in the BESS constraints are listed in
+Table~\ref{tab:bess_inputs}.
+Because every coefficient is a fixed number known before optimisation, all
+constraints remain linear in the decision variables.
+
+\begin{table}[H]
+\centering
+\caption{Fixed parameters for the BESS MILP model.}
+\label{tab:bess_inputs}
+\begin{tabular}{lllp{4.8cm}}
+\hline
+\textbf{Symbol} & \textbf{Value} & \textbf{Source} & \textbf{Role in model} \\
+\hline
+$\eta_\mathrm{ch}$ & 0.95 & BYD/SolarEdge datasheets & Charging efficiency \\
+$\eta_\mathrm{dis}$ & 0.95 & BYD/SolarEdge datasheets & Discharge efficiency \\
+$r_\mathrm{C}$ & 0.5\,kW/kWh & Manufacturer C-rate spec & Max charge/discharge rate \\
+$C_\mathrm{bat,max}$ & 200\,kWh & Available installation space & Upper bound on sizing \\
+\hline
+\end{tabular}
+\end{table}
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{Decision Variables}
+\label{sub:bess_vars}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+\begin{itemize}
+
+    \item $y_\mathrm{bat} \in \{0,1\}$: binary installation decision (1 if a BESS
+          is included in the system, 0 otherwise).
+          Required to correctly model the fixed-cost component of the annualised
+          CAPEX in Eq.~\eqref{eq:bess_capex}: without it, a zero-capacity solution
+          would still incur the fixed installation cost.
+
+    \item $C_\mathrm{bat} \in [0,\; C_\mathrm{bat,max}]$ [kWh]: continuous sizing
+          variable representing the usable energy capacity.
+          No separate rated-power variable is introduced; charge and discharge
+          powers are instead bounded by a fixed C-rate relative to this capacity.
+
+    \item $P_\mathrm{bat,ch}(t) \geq 0$ [kW]: charge power drawn from the AC bus
+          at each hour.
+
+    \item $P_\mathrm{bat,dis}(t) \geq 0$ [kW]: discharge power delivered to the
+          AC bus at each hour.
+
+    \item $E_\mathrm{bat}(t) \geq 0$ [kWh]: state of charge at each hour,
+          determined by the SoC dynamics Eq.~\eqref{eq:bess_soc_dyn}.
+
+\end{itemize}
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{MILP Constraints}
+\label{sub:bess_constraints}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+The technology-selection constraint couples the binary installation decision to
+the sizing variable, forcing zero capacity when the BESS is not selected:
+\begin{equation}
+    C_\mathrm{bat} \leq C_\mathrm{bat,max}\,y_\mathrm{bat}.
+    \label{eq:bat_binary}
+\end{equation}
+
+The SoC dynamics (Eq.~\eqref{eq:bess_soc_dyn}) enforce energy conservation at every time step.
+
+Charge and discharge powers are each limited to the installed C-rate, bounding
+the peak power relative to the energy capacity:
+\begin{align}
+    P_\mathrm{bat,ch}(t)  &\leq r_\mathrm{C}\,C_\mathrm{bat}, \label{eq:bess_ch_lim} \\
+    P_\mathrm{bat,dis}(t) &\leq r_\mathrm{C}\,C_\mathrm{bat}. \label{eq:bess_dis_lim}
+\end{align}
+With $r_\mathrm{C} = 0.5\,\mathrm{kW/kWh}$, the battery can be fully charged or
+discharged in two hours.
+
+The SoC is bounded between zero and the installed capacity at every hour:
+\begin{equation}
+    0 \leq E_\mathrm{bat}(t) \leq C_\mathrm{bat},
+    \qquad \forall\,t.
+    \label{eq:bess_soc_bounds}
+\end{equation}
+No explicit depth-of-discharge limit is imposed; the full 0--100\,\% usable
+window is available to the optimiser.
+
+Simultaneous charging and discharging is not excluded by an additional binary
+variable: because both flows incur efficiency losses, operating them
+simultaneously is never economically optimal and the solver avoids it
+naturally.
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{Summary of BESS Constraints}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Table~\ref{tab:bess_summary} collects all BESS decision variables and
+constraints embedded in the MILP.
+
+\begin{table}[H]
+\centering
+\caption{Complete BESS constraint set embedded in the MILP.}
+\label{tab:bess_summary}
+\begin{tabular}{llp{5.5cm}}
+\hline
+\textbf{Label} & \textbf{Expression} & \textbf{Role} \\
+\hline
+\eqref{eq:bat_binary}
+    & $C_\mathrm{bat} \leq C_\mathrm{bat,max}\,y_\mathrm{bat}$
+    & Forces zero capacity if BESS not selected \\
+\eqref{eq:bess_soc_dyn}
+    & $E_\mathrm{bat}(t) = E_\mathrm{bat}(t-1) + \eta_\mathrm{ch}P_\mathrm{ch}\Delta t - \frac{P_\mathrm{dis}\Delta t}{\eta_\mathrm{dis}}$
+    & SoC energy balance \\
+\eqref{eq:bess_ch_lim}--\eqref{eq:bess_dis_lim}
+    & $P_\mathrm{bat,ch/dis}(t) \leq r_\mathrm{C}\,C_\mathrm{bat}$
+    & C-rate power limits \\
+\eqref{eq:bess_soc_bounds}
+    & $0 \leq E_\mathrm{bat}(t) \leq C_\mathrm{bat}$
+    & SoC feasibility bounds \\
+\hline
+\end{tabular}
+\end{table}
 
 % ------------------------------------------------------------
 \subsection{Thermal Energy Storage (TES)}
 \label{sec:tes_model}
 % ------------------------------------------------------------
 
-% TODO: Sizing variable: tank volume V_tes* [m^3]  (linked to nominal capacity Q_N)
-% TODO: Thermal energy balance: Q_TES(t+1) = Q_TES(t) + Q_ch,TES(t) - Q_dis,TES(t) - Q_loss(t)
-% TODO: Heat loss model: Q_loss(t) = gamma * (T_in - T_amb(t)) * V_tes*  (linear in V_tes*)
-% TODO: Capacity bounds: 0 <= Q_TES(t) <= Q_N(V_tes*)
-% TODO: Charging/discharging power limits linked to HTHP rated output
-% TODO: Cyclic boundary condition
+The MILP framework offers two competing TES technologies, between which the
+optimiser selects via a binary variable.
+Binary variables $y_\mathrm{ltes},\,y_\mathrm{wtes} \in \{0,1\}$ encode this
+choice, with the mutual exclusivity constraint:
+\begin{equation}
+    y_\mathrm{ltes} + y_\mathrm{wtes} = 1.
+    \label{eq:tes_select}
+\end{equation}
+When a technology is not selected its sizing variable is forced to zero by:
+\begin{align}
+    C_\mathrm{ltes} &\leq C_\mathrm{ltes,max}\,y_\mathrm{ltes}, \label{eq:ltes_select} \\
+    h_\mathrm{wtes} &\leq h_\mathrm{wtes,max}\,y_\mathrm{wtes}. \label{eq:wtes_select}
+\end{align}
+The two technologies are described in the following subsubsections.
 
-% ------------------------------------------------------------
-\subsection{Electric Boiler (Auxiliary Heater)}
-\label{sec:eboiler_model}
-% ------------------------------------------------------------
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{Latent Thermal Energy Storage (LTES)}
+\label{sub:ltes_model}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-% TODO: Supplementary thermal source to cover peak demands or low-temperature HP lock-out periods
-% TODO: Fixed or sized rated output Q_eb* [kW]
-% TODO: Simple linear model: Q_eb(t) = eta_eb * P_eb(t),  binary on/off u_eb(t)
-% TODO: Capacity constraint: Q_eb(t) <= Q_eb* * u_eb(t)
+The LTES uses a Phase-Change Material (PCM) that stores thermal energy as latent
+heat during melting and releases it during solidification, at an essentially
+\emph{constant} temperature $T_\mathrm{pcm}$.
+Because the driving temperature difference between the tank wall and its
+surroundings does not change as the tank charges or discharges, the standby-loss
+model differs fundamentally from the SoC-proportional loss of the sensible-heat
+WTES: a dedicated isothermal loss model is required.
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{Governing Model Equations}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+The thermal capacity is linked to the physical installation volume through the
+effective volumetric energy density:
+\begin{equation}
+    C_\mathrm{ltes} = \rho_\mathrm{L,pcm}\,V_\mathrm{ltes},
+    \qquad
+    \rho_\mathrm{L,pcm} \approx 47.6\;\text{kWh}_\mathrm{th}/\text{m}^3.
+    \label{eq:ltes_capacity}
+\end{equation}
+This value is estimated from the four Sunamp Thermino~e models
+(Appendix~\ref{appendix:thermino_datasheet}) by dividing each unit's rated thermal
+capacity by its outer installation volume (Dim$_1 \times$ Dim$_2 \times$ Dim$_3$),
+which yields 38--64\,kWh$_\mathrm{th}$/m$^3$ across the range.
+Using outer dimensions as the installation footprint is conservative (the PCM core
+occupies only part of the enclosure; the remainder is insulation, heat exchanger,
+and electronics), so $47.6\,\text{kWh}_\mathrm{th}/\text{m}^3$ represents a
+lower-bound estimate that avoids over-reliance on thermal storage in the optimiser.
+
+Because the PCM operates isothermally, the hourly standby loss is a linear function
+of installed capacity only, with no SoC-dependent term:
+\begin{equation}
+    \ell_\mathrm{ltes} = a\,y_\mathrm{ltes} + b\,C_\mathrm{ltes},
+    \label{eq:ltes_loss}
+\end{equation}
+where $a$ [kWh/h] is a fixed overhead loss incurred whenever the unit is installed
+and $b$ [$\mathrm{h}^{-1}$] is the capacity-proportional loss rate.
+The coefficients were obtained by ordinary least-squares regression against
+manufacturer standby-loss data from the Sunamp Thermino~e product range
+(Appendix~\ref{appendix:thermino_datasheet}), spanning 3.5--14\,kWh$_\mathrm{th}$:
+\begin{equation}
+    a = 0.01667\;\text{kWh/h},
+    \qquad
+    b = 1.393\times10^{-3}\;\text{h}^{-1},
+    \qquad
+    R^2 = 0.935.
+    \label{eq:ltes_loss_fit}
+\end{equation}
+Figure~\ref{fig:ltes_loss_fit} shows the data and fitted line.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{images/ltes_loss_fit.png}
+    \caption{Hourly standby loss versus installed capacity for the Sunamp Thermino~e
+             product range. Data from the manufacturer datasheet
+             (Appendix~\ref{appendix:thermino_datasheet}).
+             The linear fit (Eq.~\eqref{eq:ltes_loss_fit}, $R^2 = 0.935$) decomposes
+             total loss into a fixed overhead $a$ and a capacity-proportional
+             term $b\,C_\mathrm{ltes}$, reflecting the isothermal operating principle
+             of the PCM unit.}
+    \label{fig:ltes_loss_fit}
+\end{figure}
+
+The stored thermal energy at each hour evolves according to the energy balance:
+\begin{equation}
+    Q_\mathrm{ltes}(t) = Q_\mathrm{ltes}(t-1)
+        - \ell_\mathrm{ltes}\,y_\mathrm{ltes}
+        + \eta_\mathrm{ch}\,Q_\mathrm{ltes,in}(t)
+        - \frac{Q_\mathrm{ltes,out}(t)}{\eta_\mathrm{dis}},
+    \qquad \forall\,t.
+    \label{eq:ltes_dyn}
+\end{equation}
+The loss term $\ell_\mathrm{ltes}\,y_\mathrm{ltes}$ is automatically deactivated
+when the LTES is not selected ($y_\mathrm{ltes} = 0$).
+
+The annualised LTES investment cost follows the same linear-affine structure used
+for all technologies (Section~\ref{sub:capex_model}):
+\begin{equation}
+    C_\mathrm{ltes,annual}
+        = \alpha_\mathrm{ltes,fixed}\,y_\mathrm{ltes}
+        + \alpha_\mathrm{ltes,var}\,C_\mathrm{ltes},
+    \label{eq:ltes_capex}
+\end{equation}
+with $\alpha_\mathrm{ltes,fixed}$ and $\alpha_\mathrm{ltes,var}$ from
+Section~\ref{sub:capex_model}.
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\paragraph{Fixed Parameters and Inputs.}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+All fixed coefficients embedded in the LTES constraints are listed in
+Table~\ref{tab:ltes_inputs}.
+
+\begin{table}[H]
+\centering
+\caption{Fixed parameters for the LTES MILP model.}
+\label{tab:ltes_inputs}
+\begin{tabular}{lllp{4.5cm}}
+\hline
+\textbf{Symbol} & \textbf{Value} & \textbf{Source} & \textbf{Role in model} \\
+\hline
+$\rho_\mathrm{L,pcm}$ & $47.6\,\text{kWh}_\mathrm{th}/\text{m}^3$
+    & PCM material data & Volumetric latent-heat density \\
+$a$ & $0.01667\,\text{kWh/h}$
+    & Sunamp Thermino~e fit & Fixed standby-loss overhead \\
+$b$ & $1.393\times10^{-3}\,\text{h}^{-1}$
+    & Sunamp Thermino~e fit & Capacity-proportional loss rate \\
+$V_\mathrm{max}$ & $20\,\text{m}^3$
+    & Available plant room & Shared volume limit (LTES/WTES) \\
+$C_\mathrm{ltes,max}$ & $\approx 952\,\text{kWh}_\mathrm{th}$
+    & $\rho_\mathrm{L,pcm}\times V_\mathrm{max}$ & Upper bound on thermal capacity \\
+$\eta_\mathrm{ch}$, $\eta_\mathrm{dis}$ & $0.95$ each
+    & Engineering assumption & Charge/discharge efficiency \\
+$r_\mathrm{C}$ & $0.5\,\text{kW}_\mathrm{th}/\text{kWh}_\mathrm{th}$
+    & Heat-exchanger sizing & Max charge/discharge rate \\
+\hline
+\end{tabular}
+\end{table}
+
+The high volumetric energy density of the LTES ($\rho_\mathrm{L,pcm} \approx
+47.6\,\text{kWh}_\mathrm{th}/\text{m}^3$) is roughly \textbf{twice} that of the
+WTES ($\rho_\mathrm{w} \approx 22.6\,\text{kWh}_\mathrm{th}/\text{m}^3$), so the
+shared $V_\mathrm{max}$ constraint gives the LTES access to nearly twice the
+thermal capacity in the same footprint.
+This is the core economic rationale for including the more expensive LTES: when
+available volume is binding, the solver may endogenously select LTES despite its
+higher unit cost.
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\paragraph{Decision Variables.}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+\begin{itemize}
+
+    \item $y_\mathrm{ltes} \in \{0,1\}$: binary installation decision.
+          Required to correctly model the fixed-cost component of the CAPEX
+          (Eq.~\eqref{eq:ltes_capex}) and to deactivate the standby-loss term
+          in Eq.~\eqref{eq:ltes_loss} when the LTES is not selected.
+
+    \item $C_\mathrm{ltes} \in [0,\; C_\mathrm{ltes,max}]$
+          [kWh$_\mathrm{th}$]: continuous sizing variable (installed thermal
+          capacity), linked to the physical volume by Eq.~\eqref{eq:ltes_capacity}.
+
+    \item $Q_\mathrm{ltes}(t) \geq 0$ [kWh$_\mathrm{th}$]: stored thermal energy
+          (state of charge) at each hour, governed by Eq.~\eqref{eq:ltes_dyn}.
+
+    \item $Q_\mathrm{ltes,in}(t) \geq 0$ [kWh$_\mathrm{th}$/h]: charging heat flow
+          at each hour.
+
+    \item $Q_\mathrm{ltes,out}(t) \geq 0$ [kWh$_\mathrm{th}$/h]: discharging heat
+          flow at each hour.
+
+\end{itemize}
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\paragraph{MILP Constraints.}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+The technology-selection constraint (already introduced in the TES subsection
+intro, Eq.~\eqref{eq:ltes_select}) couples the binary to the sizing variable,
+forcing zero capacity when the LTES is not chosen.
+
+Both TES technologies compete for the same physical footprint; the shared volume
+limit bounds the maximum installable LTES capacity:
+\begin{equation}
+    C_\mathrm{ltes} \leq \rho_\mathrm{L,pcm}\,V_\mathrm{max}.
+    \label{eq:ltes_maxvol}
+\end{equation}
+
+The SoC energy balance (Eq.~\eqref{eq:ltes_dyn}) enforces thermal energy
+conservation at every hour, incorporating the isothermal standby loss.
+
+Charge and discharge heat flows are bounded by the C-rate limit:
+\begin{align}
+    Q_\mathrm{ltes,in}(t)  &\leq r_\mathrm{C}\,C_\mathrm{ltes}, \label{eq:ltes_ch} \\
+    Q_\mathrm{ltes,out}(t) &\leq r_\mathrm{C}\,C_\mathrm{ltes}. \label{eq:ltes_dis}
+\end{align}
+
+The state of charge is bounded between 5\,\% and 95\,\% of full capacity to
+prevent complete depletion or overflow:
+\begin{equation}
+    0.05\,C_\mathrm{ltes} \;\leq\; Q_\mathrm{ltes}(t) \;\leq\; 0.95\,C_\mathrm{ltes},
+    \qquad \forall\,t.
+    \label{eq:ltes_soc}
+\end{equation}
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\paragraph{Summary of LTES Constraints.}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Table~\ref{tab:ltes_summary} collects all LTES constraints embedded in the MILP.
+
+\begin{table}[H]
+\centering
+\caption{Complete LTES constraint set embedded in the MILP.}
+\label{tab:ltes_summary}
+\begin{tabular}{llp{5.5cm}}
+\hline
+\textbf{Label} & \textbf{Expression} & \textbf{Role} \\
+\hline
+\eqref{eq:ltes_maxvol}
+    & $C_\mathrm{ltes} \leq \rho_\mathrm{L,pcm}\,V_\mathrm{max}$
+    & Shared volume upper bound \\
+\eqref{eq:ltes_dyn}
+    & $Q_\mathrm{ltes}(t) = Q_\mathrm{ltes}(t-1) - \ell_\mathrm{ltes}\,y_\mathrm{ltes} + \eta_\mathrm{ch}Q_\mathrm{in} - Q_\mathrm{out}/\eta_\mathrm{dis}$
+    & SoC energy balance (isothermal loss) \\
+\eqref{eq:ltes_ch}--\eqref{eq:ltes_dis}
+    & $Q_\mathrm{ltes,in/out}(t) \leq r_\mathrm{C}\,C_\mathrm{ltes}$
+    & C-rate charge/discharge limits \\
+\eqref{eq:ltes_soc}
+    & $0.05\,C_\mathrm{ltes} \leq Q_\mathrm{ltes}(t) \leq 0.95\,C_\mathrm{ltes}$
+    & SoC feasibility bounds \\
+\hline
+\end{tabular}
+\end{table}
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\subsubsection{Water Thermal Energy Storage (WTES)}
+\label{sub:wtes_model}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+The WTES is modelled as a vertical, insulated, cylindrical water tank using the
+stratified two-zone model described in Section~\ref{sub:sts_model} and
+illustrated in Figure~\ref{fig:stratifiedtes}.
+A fixed inner diameter $d = 1\,\text{m}$ and a variable height $h_\mathrm{wtes}$
+are adopted, keeping all capacity-related expressions linear in the sizing variable.
+The tank operates between supply temperature $T_\mathrm{H} = 60\,^{\circ}\mathrm{C}$
+and return temperature $T_\mathrm{C} = 40\,^{\circ}\mathrm{C}$
+($\Delta T_\mathrm{HC} = 20\,\mathrm{K}$), with a representative indoor ambient
+of $T_\mathrm{env} = 10\,^{\circ}\mathrm{C}$.
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\paragraph{Governing Model Equations.}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+The nominal thermal capacity is a linear function of tank height:
+\begin{equation}
+    C_\mathrm{WTES} = \kappa_m \, h_\mathrm{wtes},
+    \qquad
+    \kappa_m = \frac{\tfrac{\pi d^2}{4}\,\rho_w\,c_w\,\Delta T_\mathrm{HC}}{3.6\times10^6}
+    \approx 17.77\;\text{kWh}_\mathrm{th}/\text{m},
+    \label{eq:wtes_capacity}
+\end{equation}
+where $\rho_w = 971.8\,\text{kg/m}^3$ (water at $55\,^{\circ}\mathrm{C}$)
+and $c_w = 4{,}190\,\text{J/(kg\,K)}$.
+
+The three-component standby-loss model~\cite{Krien2020oemofsolph} captures the
+SoC-dependent lateral wall loss, a baseline capacity-proportional loss, and a
+constant lid loss:
+\begin{equation}
+    \ell_\mathrm{wtes}(t) = \beta\,Q_\mathrm{wtes}(t-1)
+                           + \gamma\,C_\mathrm{WTES}
+                           + \delta,
+    \label{eq:wtes_loss}
+\end{equation}
+with coefficients derived from first principles.
+The lateral wall area of the cylinder is $A_\mathrm{wall} = 4V/d$, giving an
+instantaneous wall heat loss:
+\begin{equation}
+    \dot{Q}_\mathrm{wall} = U_w \cdot \frac{4V}{d} \cdot (T_\mathrm{tank} - T_\mathrm{env}) \cdot \Delta t.
+    \label{eq:Qwall_raw}
+\end{equation}
+In the two-zone model, the bulk temperature depends linearly on SoC,
+$T_\mathrm{tank} = T_\mathrm{C} + (Q/C)\,\Delta T_\mathrm{HC}$, so the
+driving temperature difference splits into a constant baseline and a
+SoC-dependent part:
+\begin{equation}
+    T_\mathrm{tank} - T_\mathrm{env}
+        = \underbrace{(T_\mathrm{C} - T_\mathrm{env})}_{\Delta T_\mathrm{C0}\,=\,30\,\mathrm{K}}
+        + \underbrace{\frac{Q}{C}\,\Delta T_\mathrm{HC}}_{\text{SoC-dependent}}.
+    \label{eq:dT_split}
+\end{equation}
+Substituting into Eq.~\eqref{eq:Qwall_raw} and using $C = \rho_w V c_w \Delta T_\mathrm{HC}$:
+\begin{align}
+    \dot{Q}_\mathrm{wall}
+        &= \underbrace{\frac{U_w \cdot 4 \cdot \Delta t}{\rho_w \cdot c_w \cdot d}}_{\displaystyle\beta} \cdot Q
+          \;+\;
+           \underbrace{\frac{U_w \cdot 4 \cdot \Delta t}{\rho_w \cdot c_w \cdot d} \cdot \frac{\Delta T_\mathrm{C0}}{\Delta T_\mathrm{HC}}}_{\displaystyle\gamma} \cdot C.
+    \label{eq:betagamma_derived}
+\end{align}
+The coefficient $\beta$ is the fractional lateral loss per unit stored energy
+(higher SoC means hotter water, larger gradient);
+$\gamma = \beta\,\Delta T_\mathrm{C0}/\Delta T_\mathrm{HC}$ is the baseline lateral
+loss per unit installed capacity, present even when the tank is empty;
+and $\delta$ accounts for the constant top and bottom lid losses.
+
+The SoC energy balance at each hour combines the loss model with charge and
+discharge flows:
+\begin{equation}
+    Q_\mathrm{wtes}(t) = Q_\mathrm{wtes}(t-1)
+        - \ell_\mathrm{wtes}(t)\,y_\mathrm{wtes}
+        + \eta_\mathrm{ch}\,Q_\mathrm{wtes,in}(t)
+        - \frac{Q_\mathrm{wtes,out}(t)}{\eta_\mathrm{dis}},
+    \qquad \forall\,t.
+    \label{eq:wtes_dyn}
+\end{equation}
+The factor $y_\mathrm{wtes}$ deactivates the loss term when WTES is not selected.
+
+The annualised WTES investment cost follows the same linear-affine structure used
+for all technologies (Section~\ref{sub:capex_model}):
+\begin{equation}
+    C_\mathrm{wtes,annual}
+        = \alpha_\mathrm{wtes,fixed}\,y_\mathrm{wtes}
+        + \alpha_\mathrm{wtes,var}\,C_\mathrm{WTES},
+    \label{eq:wtes_capex_annual}
+\end{equation}
+where $y_\mathrm{wtes}$ is the installation binary introduced below.
+Without $y_\mathrm{wtes}$, a solver that sets $h_\mathrm{wtes} = 0$ would still
+incur the fixed cost term, incorrectly penalising the no-WTES outcome.
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\paragraph{Fixed Parameters and Inputs.}
+\label{par:wtes_uval}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+All fixed coefficients embedded in the WTES constraints are listed in
+Table~\ref{tab:wtes_inputs}.
+The wall U-value $U_w$ is the single most influential parameter in the loss model.
+Manufacturer datasheets report standby energy consumption [kWh/24\,h] under
+EN~12977-3 conditions (tank at $65\,^{\circ}\mathrm{C}$, ambient at
+$20\,^{\circ}\mathrm{C}$, $\Delta T = 45\,\mathrm{K}$), from which the implied
+$U$-value is back-calculated as:
+\begin{equation}
+    U_\mathrm{impl} = \frac{Q_\mathrm{standby} \times 1000}{A_\mathrm{tot}\,\Delta T\,24},
+    \label{eq:uimpl}
+\end{equation}
+where $A_\mathrm{tot} = A_\mathrm{lat} + 2A_\mathrm{cross}$ [m$^2$].
+Applied to the full Vaillant uniSTOR VPS range
+(Appendix~\ref{appendix:vps_datasheet}), the implied values range from
+$\approx 0.54$ (VPS~300/3) down to $\approx 0.30\,\text{W/(m}^2\text{K)}$
+(VPS~2000/3); Figure~\ref{fig:wtes_validation} shows the results.
+The adopted value $U_w = 0.4\,\text{W/(m}^2\text{K)}$ is conservative for the
+large-tank range most relevant here, ensuring the optimiser does not over-rely
+on thermal storage.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/wtes_validation_vps.png}
+    \caption{WTES wall U-value validation against the Vaillant uniSTOR VPS
+             product range (Appendix~\ref{appendix:vps_datasheet}).
+             \textit{Left}: absolute standby loss [kWh/24\,h] per tank model
+             with candidate $U$-value curves overlaid.
+             \textit{Right}: implied $U$-value back-calculated from
+             Eq.~\eqref{eq:uimpl} for each VPS model; the chosen value
+             $U_w = 0.4\,\text{W/(m}^2\text{K)}$ is shown as a horizontal line.}
+    \label{fig:wtes_validation}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Fixed parameters for the WTES MILP model.}
+\label{tab:wtes_inputs}
+\begin{tabular}{lllp{4.5cm}}
+\hline
+\textbf{Symbol} & \textbf{Value} & \textbf{Source} & \textbf{Role in model} \\
+\hline
+$d$ & $1.0\,\text{m}$ & Design choice & Fixed inner diameter \\
+$U_w$ & $0.4\,\text{W/(m}^2\text{K)}$ & VPS datasheet fit (Fig.~\ref{fig:wtes_validation}) & Wall heat-loss coefficient \\
+$\Delta T_\mathrm{HC}$ & $20\,\text{K}$ & Operating temps & Usable temperature swing \\
+$\kappa_m$ & $17.77\,\text{kWh}_\mathrm{th}/\text{m}$ & Eq.~\eqref{eq:wtes_capacity} & Capacity-per-unit-height \\
+$\beta$ & $1.42\times10^{-3}$ & Eq.~\eqref{eq:beta_wtes} & SoC-proportional loss coefficient \\
+$\gamma$ & $2.12\times10^{-3}$ & Eq.~\eqref{eq:gamma_wtes} & Capacity-proportional loss coefficient \\
+$\delta$ & $0.025\,\text{kWh}_\mathrm{th}/\text{h}$ & Eq.~\eqref{eq:delta_wtes} & Constant lid loss \\
+$h_\mathrm{wtes,max}$ & $25.5\,\text{m}$ & $V_\mathrm{max}/A_\mathrm{cross}$ & Upper height bound \\
+$\eta_\mathrm{ch}$, $\eta_\mathrm{dis}$ & $0.95$ each & Engineering assumption & Charge/discharge efficiency \\
+$r_\mathrm{C}$ & $0.5\,\text{kW}_\mathrm{th}/\text{kWh}_\mathrm{th}$ & HX sizing & Max charge/discharge rate \\
+$\alpha_\mathrm{wtes,fixed}$ & $73.9\,\text{\euro/yr}$ & Section~\ref{sub:capex_model} & Fixed annual CAPEX term \\
+$\alpha_\mathrm{wtes,var}$ & $4.0\,\text{\euro/(yr\,kWh}_\mathrm{th})$ & Section~\ref{sub:capex_model} & Capacity-proportional CAPEX \\
+$n_\mathrm{wtes}$ & $20\,\text{yr}$ & Market data & Economic lifetime \\
+\hline
+\end{tabular}
+\end{table}
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\paragraph{Decision Variables.}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+\begin{itemize}
+
+    \item $y_\mathrm{wtes} \in \{0,1\}$: binary installation decision.
+          Required to correctly model the fixed CAPEX term in
+          Eq.~\eqref{eq:wtes_capex_annual} and to deactivate the standby-loss
+          term in Eq.~\eqref{eq:wtes_dyn} when WTES is not selected.
+
+    \item $h_\mathrm{wtes} \in [0,\; h_\mathrm{wtes,max}]$ [m]: continuous
+          sizing variable (tank height).
+          All capacity-related quantities follow linearly from this single variable
+          via Eq.~\eqref{eq:wtes_capacity}.
+
+    \item $Q_\mathrm{wtes}(t) \geq 0$ [kWh$_\mathrm{th}$]: stored thermal energy
+          at each hour, governed by Eq.~\eqref{eq:wtes_dyn}.
+
+    \item $Q_\mathrm{wtes,in}(t) \geq 0$ [kWh$_\mathrm{th}$/h]: charging heat
+          flow at each hour.
+
+    \item $Q_\mathrm{wtes,out}(t) \geq 0$ [kWh$_\mathrm{th}$/h]: discharging
+          heat flow at each hour.
+
+\end{itemize}
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\paragraph{MILP Constraints.}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+The technology-selection constraint (Eq.~\eqref{eq:wtes_select}, introduced in
+the TES subsection intro) couples the binary to the sizing variable, forcing
+$h_\mathrm{wtes} = 0$ when WTES is not chosen.
+
+The shared volume limit bounds the maximum installable tank height:
+\begin{equation}
+    h_\mathrm{wtes} \leq \frac{V_\mathrm{max}}{A_\mathrm{cross}} \approx 25.5\;\text{m}.
+    \label{eq:wtes_hmax}
+\end{equation}
+
+The SoC energy balance (Eq.~\eqref{eq:wtes_dyn}) enforces thermal energy
+conservation at every hour, incorporating the three-component standby loss.
+
+Charge and discharge heat flows are bounded by the C-rate limit:
+\begin{align}
+    Q_\mathrm{wtes,in}(t)  &\leq r_\mathrm{C}\,C_\mathrm{WTES}, \label{eq:wtes_ch} \\
+    Q_\mathrm{wtes,out}(t) &\leq r_\mathrm{C}\,C_\mathrm{WTES}. \label{eq:wtes_dis}
+\end{align}
+
+To prevent the diffuser plates from being submerged at the tank extremes, the
+state of charge is bounded between 5\,\% and 95\,\% of full capacity:
+\begin{equation}
+    0.05\,C_\mathrm{WTES} \;\leq\; Q_\mathrm{wtes}(t) \;\leq\; 0.95\,C_\mathrm{WTES},
+    \qquad \forall\,t.
+    \label{eq:wtes_soc}
+\end{equation}
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\paragraph{Summary of WTES Constraints.}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Table~\ref{tab:wtes_summary} collects all WTES constraints embedded in the MILP.
+
+\begin{table}[H]
+\centering
+\caption{Complete WTES constraint set embedded in the MILP.}
+\label{tab:wtes_summary}
+\begin{tabular}{llp{5.5cm}}
+\hline
+\textbf{Label} & \textbf{Expression} & \textbf{Role} \\
+\hline
+\eqref{eq:wtes_capex_annual}
+    & $C_\mathrm{wtes,annual} = \alpha_\mathrm{wtes,fixed}\,y_\mathrm{wtes} + \alpha_\mathrm{wtes,var}\,C_\mathrm{WTES}$
+    & Linear-affine annualised CAPEX \\
+\eqref{eq:tes_select}
+    & $y_\mathrm{ltes} + y_\mathrm{wtes} = 1$
+    & Mutual exclusivity with LTES \\
+\eqref{eq:wtes_select}
+    & $h_\mathrm{wtes} \leq h_\mathrm{wtes,max}\,y_\mathrm{wtes}$
+    & Forces zero height if WTES not selected \\
+\eqref{eq:wtes_hmax}
+    & $h_\mathrm{wtes} \leq 25.5\,\text{m}$
+    & Shared volume upper bound \\
+\eqref{eq:wtes_dyn}
+    & $Q_\mathrm{wtes}(t) = Q_\mathrm{wtes}(t-1) - \ell_\mathrm{wtes}\,y_\mathrm{wtes} + \eta_\mathrm{ch}Q_\mathrm{in} - Q_\mathrm{out}/\eta_\mathrm{dis}$
+    & SoC energy balance (three-term loss) \\
+\eqref{eq:wtes_ch}--\eqref{eq:wtes_dis}
+    & $Q_\mathrm{wtes,in/out}(t) \leq r_\mathrm{C}\,C_\mathrm{WTES}$
+    & C-rate charge/discharge limits \\
+\eqref{eq:wtes_soc}
+    & $0.05\,C_\mathrm{WTES} \leq Q_\mathrm{wtes}(t) \leq 0.95\,C_\mathrm{WTES}$
+    & SoC feasibility bounds \\
+\hline
+\end{tabular}
+\end{table}
 
 % ============================================================
 \section{System Energy Balance Constraints}
 \label{sec:energy_balance}
 % ============================================================
 
-% TODO: Electrical balance at every time step t:
-%   P_PV(t) + P_dis(t) + P_grid,import(t)
-%       = P_dem(t) + P_el,HP(t) + P_eb(t) + P_ch(t) + P_grid,export(t)
-%
-% TODO: Thermal balance at every time step t:
-%   Q_HP(t) + Q_eb(t) + Q_dis,TES(t) = Q_dem(t) + Q_ch,TES(t)
-%
-% TODO: Grid import/export limits: 0 <= P_grid,import(t) <= P_max
-%                                  0 <= P_grid,export(t) <= P_max
-% TODO: Non-simultaneity of import and export (binary auxiliary variable or big-M)
+The component models of Section~\ref{sec:component_models} are coupled through two
+nodal energy balances that must hold at every hour $t \in \{1,\ldots,T\}$: an
+\textit{electrical} balance on the AC bus and a \textit{thermal} balance at the
+building heat-demand node.
+Figure~\ref{fig:energy_flows} illustrates all power and heat flows connecting the
+system components.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    >=Latex, font=\small, thick,
+    box/.style  = {draw, rounded corners=3pt, minimum width=1.9cm,
+                   minimum height=0.72cm, align=center},
+    lbl/.style  = {font=\footnotesize, fill=white, inner sep=1.5pt},
+    earr/.style = {->, line width=1.2pt},
+    tarr/.style = {->, line width=1.2pt, red!65!black},
+]
+
+%% All left-column nodes have minimum width=1.9 cm centred at x=0,
+%% so their east edge is at x=0.95. The AC bus is at x=2.9.
+%% HP at x=5.6 → west edge at x=4.65.
+
+%% ─── Nodes ──────────────────────────────────────────────────
+\node[box, fill=orange!20]  (pv)    at (0,   4.2) {PV};
+\node[box, fill=green!12]   (grid)  at (0,   3.0) {Grid};
+\node[box, fill=teal!15]    (bess)  at (0,   1.5) {BESS};
+\node[box, fill=gray!15]    (eload) at (0,   0.2) {Elec.\ load};
+\node[box, fill=purple!15]  (hp)    at (5.6, 3.0) {HP};
+\node[box, fill=yellow!15]  (tes)   at (9.4, 4.5) {TES};
+\node[box, fill=red!12]     (tload) at (12.0,3.0) {Heat demand\\$Q_\mathrm{dem}(t)$};
+
+%% ─── AC bus bar (vertical, x=2.9) ──────────────────────────
+\draw[line width=5pt, blue!40, line cap=round] (2.9,-0.4) -- (2.9, 4.7);
+\node[rotate=90, font=\small\bfseries, blue!60!black] at (3.25, 2.3) {AC Bus};
+
+%% ─── Thermal junction dot ───────────────────────────────────
+\coordinate (junc) at (7.8, 3.0);
+\fill[red!60!black] (junc) circle (3.2pt);
+
+%% ─── Electrical arrows (all perfectly horizontal) ───────────
+% Both endpoints of every arrow share the same y-coordinate.
+% Parallel pairs (import/export, charge/discharge) are offset ±0.15 cm.
+
+% PV → bus  (y = 4.2)
+\draw[earr, orange!80!black]
+    (0.95, 4.2) -- node[lbl, above]{$P_\mathrm{PV}(t)$} (2.9, 4.2);
+
+% Grid → bus: import  (y = 3.15)
+\draw[earr, green!65!black]
+    (0.95, 3.15) -- node[lbl, above]{$P_\mathrm{buy}(t)$} (2.9, 3.15);
+
+% Bus → grid: export  (y = 2.85)
+\draw[earr, green!45!black]
+    (2.9, 2.85) -- node[lbl, below]{$P_\mathrm{sell}(t)$} (0.95, 2.85);
+
+% BESS → bus: discharge  (y = 1.65)
+\draw[earr, teal!70!black]
+    (0.95, 1.65) -- node[lbl, above]{$P_\mathrm{bat,dis}(t)$} (2.9, 1.65);
+
+% Bus → BESS: charge  (y = 1.35)
+\draw[earr, teal!45!black]
+    (2.9, 1.35) -- node[lbl, below]{$P_\mathrm{bat,ch}(t)$} (0.95, 1.35);
+
+% Bus → elec load  (y = 0.2)
+\draw[earr, gray!65!black]
+    (2.9, 0.2) -- node[lbl, above]{$P_\mathrm{dem}^\mathrm{el}(t)$} (0.95, 0.2);
+
+% Bus → HP  (y = 3.0)
+\draw[earr, purple!70!black]
+    (2.9, 3.0) -- node[lbl, above]{$P_\mathrm{hp}^\mathrm{el}(t)$} (4.65, 3.0);
+
+%% ─── Thermal arrows ─────────────────────────────────────────
+% HP → junction  (horizontal, y=3.0)
+\draw[tarr]
+    (hp.east) -- node[lbl, above]{$q_\mathrm{hp}^\mathrm{th}(t)$} (junc);
+
+% Junction → TES: L-shape (vertical up to TES y, then horizontal right)
+% Label sits on the short horizontal segment (pos≈0.75 of total path length)
+\draw[tarr, orange!70!black]
+    (junc) -| node[lbl, above, pos=0.70]{$Q_\mathrm{tes,in}(t)$} (tes.west);
+
+% Junction → heat demand: direct bypass  (horizontal, y=3.0)
+\draw[tarr]
+    (junc) -- node[lbl, below]{$Q_\mathrm{load,in}(t)$} (tload.west);
+
+% TES → heat demand: L-shape (horizontal right to tload x, then vertical down)
+% Label sits on the horizontal segment (pos≈0.25 of total path length)
+\draw[tarr, orange!70!black]
+    (tes.east) |- node[lbl, above, pos=0.45]{$Q_\mathrm{tes,out}(t)$} (tload.north);
+
+%% ─── Domain outlines ─────────────────────────────────────────
+\draw[dashed, blue!40, rounded corners=7pt]  (-1.3,-0.9) rectangle (4.0, 5.1);
+\node[blue!55!black, font=\footnotesize\itshape] at (1.3, -0.75) {electrical domain};
+
+\draw[dashed, red!40, rounded corners=7pt]   (4.1,-0.9) rectangle (13.1, 5.1);
+\node[red!55!black, font=\footnotesize\itshape] at (8.6, -0.75) {thermal domain};
+
+\end{tikzpicture}
+\caption{System power-flow diagram.
+         \textit{Left (electrical domain):} PV generation, grid import/export, and BESS
+         charge/discharge all connect to the AC bus, which supplies the building electrical
+         load and the HP.
+         \textit{Right (thermal domain):} HP thermal output splits at the junction node
+         into TES charging ($Q_\mathrm{tes,in}$) and direct supply to the load
+         ($Q_\mathrm{load,in}$); TES discharge ($Q_\mathrm{tes,out}$) and the direct
+         path together satisfy the hourly heat demand $Q_\mathrm{dem}(t)$.}
+\label{fig:energy_flows}
+\end{figure}
+
+% ------------------------------------------------------------
+\subsection{Electrical Energy Balance}
+\label{sub:elec_balance}
+% ------------------------------------------------------------
+
+At every hour the total power injected into the AC bus must equal the total power
+withdrawn:
+\begin{equation}
+    P_\mathrm{PV}(t) + P_\mathrm{bat,dis}(t) + P_\mathrm{buy}(t)
+    \;=\;
+    P_\mathrm{dem}^\mathrm{el}(t) + P_\mathrm{bat,ch}(t)
+    + P_\mathrm{hp}^\mathrm{el}(t) + P_\mathrm{sell}(t),
+    \label{eq:elec_balance}
+\end{equation}
+where $P_\mathrm{PV}(t) = I_\mathrm{sol}(t)\,C_\mathrm{PV}$ is the PV generation
+(Section~\ref{subsec:pv_irradiance}), $P_\mathrm{dem}^\mathrm{el}(t)$ is the
+measured hourly building electrical load, and $P_\mathrm{buy}(t),\,P_\mathrm{sell}(t)
+\geq 0$ are the grid import and export flows respectively.
+
+To prevent the optimiser from buying grid electricity and immediately re-selling it
+at a profit, grid export is capped to on-site generation:
+\begin{equation}
+    P_\mathrm{sell}(t) \leq P_\mathrm{PV}(t) + P_\mathrm{bat,dis}(t).
+    \label{eq:sell_limit}
+\end{equation}
+This ensures that any exported energy originates exclusively from the PV array or
+BESS, not from grid-purchased power.
+
+% ------------------------------------------------------------
+\subsection{Thermal Energy Balance}
+\label{sub:therm_balance}
+% ------------------------------------------------------------
+
+The thermal domain is governed by two coupled equality constraints.
+First, all heat output by the HP must be accounted for — it either charges the TES
+or is delivered directly to the building heating circuit:
+\begin{equation}
+    q_\mathrm{hp}^\mathrm{th}(t) = Q_\mathrm{tes,in}(t) + Q_\mathrm{load,in}(t),
+    \label{eq:hp_split}
+\end{equation}
+where $Q_\mathrm{tes,in}(t) = Q_\mathrm{ltes,in}(t) + Q_\mathrm{wtes,in}(t)$
+(exactly one term is non-zero, determined by the TES type selection binaries
+$y_\mathrm{ltes}$ and $y_\mathrm{wtes}$) and $Q_\mathrm{load,in}(t) \geq 0$
+is the heat bypassing storage.
+
+Second, the hourly heat demand must be fully met by the combination of direct HP
+output and TES discharge:
+\begin{equation}
+    Q_\mathrm{load,in}(t) + Q_\mathrm{tes,out}(t) = Q_\mathrm{dem}(t),
+    \label{eq:therm_balance}
+\end{equation}
+where $Q_\mathrm{tes,out}(t) = Q_\mathrm{ltes,out}(t) + Q_\mathrm{wtes,out}(t)$
+is TES discharge and $Q_\mathrm{dem}(t)$ is the BDEW hourly heat demand profile
+(Section~\ref{subsec:thermal_demand}).
+
+Together, Eqs.~\eqref{eq:hp_split} and~\eqref{eq:therm_balance} imply that the
+HP is the sole thermal source in the system: all heat delivered to the building
+originates from HP operation, with the TES acting only as a temporal buffer.
+The optimiser can therefore shift HP operation away from expensive peak-price
+hours by pre-charging the TES during cheap off-peak periods.
+
+
+
+
+
+% ============================================================
+
+
+\section{Techno-Economic Parameters}
+\label{sec:econ_params}
+% ============================================================
+
+Before presenting the component models it is necessary to establish the economic framework
+used to translate one-time capital expenditures into annual costs comparable with the
+annual operational expenditures optimised by the MILP.
+This section describes the Capital Recovery Factor, the economies-of-scale cost model,
+and lists all techno-economic parameters used in the study.
+
+% ------------------------------------------------------------
+\subsection{Capital Recovery Factor (CRF)}
+\label{sub:crf}
+% ------------------------------------------------------------
+
+Investment costs for all technologies are converted to an equivalent \textbf{annualised
+CAPEX} using the Capital Recovery Factor (CRF), also known as the annuity factor.
+The CRF spreads a one-time investment over the asset's economic lifetime $n$ [yr]
+at a fixed discount rate $r$ [-], representing the weighted average cost of capital (WACC):
+
+\begin{equation}
+    \mathrm{CRF}(r,\,n) = \frac{r\,(1+r)^{n}}{(1+r)^{n}-1}.
+    \label{eq:crf}
+\end{equation}
+
+\noindent A single discount rate of $r = 5\,\%$ is applied uniformly to all technologies,
+reflecting a typical WACC for commercial building energy investments in Belgium~\cite{VEKA2026}.
+Each technology has its own economic lifetime $n$, so a separate CRF value is computed per
+technology.
+The annualised CAPEX for a technology with unit investment cost $c$ [\euro/unit] and
+installed capacity $X$ [unit] is then:
+
+\begin{equation}
+    \mathrm{CAPEX}_\mathrm{ann}(X) = c \cdot \mathrm{CRF}(r,n) \cdot X
+    \quad [\text{\euro/yr}].
+    \label{eq:capex_ann_linear}
+\end{equation}
+
+\noindent A key advantage of the CRF approach is that it enables a fair comparison between technologies with different economic lifetimes.
+A PV array with a 25-year lifetime and a battery with a 15-year lifetime cannot be compared on raw investment cost alone: the battery must be replaced sooner and its annualised cost per year is therefore higher relative to its upfront price.
+By multiplying each technology's specific cost by its own $\mathrm{CRF}(r, n_k)$, all CAPEX terms are expressed in the same unit (\euro/yr) and can be added directly in the objective function without distorting the trade-off between technologies.
+
+\noindent In practice, the specific cost per unit capacity varies with installation size, which is addressed by the linear-affine CAPEX model described next.
+
+% ------------------------------------------------------------
+\subsection{Linear-Affine CAPEX Model}
+\label{sub:capex_model}
+% ------------------------------------------------------------
+
+Rather than applying a generic economies-of-scale power-law, the capital cost of each
+technology is modelled as a \textbf{linear-affine} function of installed capacity,
+fitted directly to manufacturer and supplier price quotes (the underlying market data and fitted curves for each technology are presented in Section~\ref{sub:tech_params}):
+
+\begin{equation}
+    \mathrm{CAPEX}(X) = c_f + c_v \cdot X \quad [\text{\euro}],
+    \label{eq:capex_affine}
+\end{equation}
+
+\noindent where $c_f$ [\euro] is a fixed one-time cost covering installation labour,
+mounting, wiring, and commissioning, and $c_v$ [\euro/unit] is the per-unit hardware cost.
+The fixed component implicitly captures the qualitative behaviour of economies of scale:
+the specific cost $c_f/X + c_v$ decreases as installed capacity grows, without
+requiring a non-linear formulation.
+
+This approach has two practical advantages over the power-law alternative.
+First, no piecewise-linear approximation of a concave curve is required, eliminating
+an additional source of approximation error and reducing solver complexity.
+Second, $c_f$ and $c_v$ are directly identifiable from market price data, making the
+model straightforward to update when prices change.
+
+Each one-time cost is annualised by multiplying by the CRF:
+
+\begin{equation}
+    \mathrm{CAPEX}_\mathrm{ann}(X)
+    = \bigl(c_f + c_v \cdot X\bigr) \cdot \mathrm{CRF}(r,\,n)
+    = \underbrace{c_f \cdot \mathrm{CRF}}_{c_f^\mathrm{ann}}
+    + \underbrace{c_v \cdot \mathrm{CRF}}_{c_v^\mathrm{ann}} \cdot X
+    \quad [\text{\euro/yr}],
+    \label{eq:capex_ann_affine}
+\end{equation}
+
+\noindent which is linear in $X$ and embeds directly as a linear equality constraint
+in the MILP.
+The fixed annual cost $c_f^\mathrm{ann}$ is gated by the technology-selection binary
+$y \in \{0,1\}$ of each component, so it is only incurred when the technology is
+actually installed.
+
+% ------------------------------------------------------------
+\subsection{Technology Parameters}
+\label{sub:tech_params}
+% ------------------------------------------------------------
+
+\autoref{tab:econ_params} lists the one-time CAPEX parameters for all technologies,
+fitted from current manufacturer and supplier price data.
+Annualised values follow from multiplying by the CRF at $r = 5\,\%$.
+
+\begin{table}[H]
+\centering
+\caption{One-time CAPEX parameters per technology, fitted from manufacturer and supplier
+         market data. $c_f$: fixed cost component; $c_v$: variable per-unit cost.
+         CRF computed at $r = 5\,\%$ via \eqref{eq:crf}.
+         ``Data range'' is the capacity range covered by the market data used for the fit.}
+\label{tab:econ_params}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llccccll}
+\hline
+\textbf{Technology} & \textbf{Unit}
+    & $c_f$ [\euro] & $c_v$ [\euro/unit]
+    & \textbf{Lifetime} [yr] & \textbf{CRF}
+    & \textbf{Data range} & \textbf{Sources} \\
+\hline
+HTHP
+    & kW$_\mathrm{th}$
+    & 9\,516 & 644
+    & 20 & 0.0802
+    & 15--60\,kW$_\mathrm{th}$
+    & \cite{DaikinEWYECZ} \\
+PV array
+    & kW$_\mathrm{p}$
+    & 919 & 532
+    & 25 & 0.0710
+    & 2.3--14\,kW$_\mathrm{p}$
+    & \cite{GreenAkku2024,Solarwinkel2024,SuwiePVQuote2023} \\
+BESS
+    & kWh
+    & 848 & 456
+    & 15 & 0.0963
+    & 4--34\,kWh
+    & \cite{SolarBouwmarkt2024} \\
+LTES (PCM)
+    & kWh$_\mathrm{th}$
+    & 721 & 197
+    & 20 & 0.0802
+    & 3--50\,kWh$_\mathrm{th}$
+    & \cite{FlamcoCapex2024,SunapThermino2024} \\
+WTES (water tank)
+    & L
+    & 921 & 1.165
+    & 20 & 0.0802
+    & 100--3\,000\,L
+    & \cite{VaillantCapex2024,BoschCapex2024,ViessmannCapex2024,RemehaCapex2024} \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\noindent For PV, the fixed and variable cost components were back-calculated from a real
+installation quote issued by Suwie in 2023 (reproduced in
+Appendix~\ref{appendix:suwie_quote}).
+The quote itemises labour, mounting, inverter placement, and inspection as largely
+system-size-independent charges, which map directly to the fixed term $c_f$, while the
+panel hardware cost scales with installed peak power and forms the variable term $c_v$.
+It should be noted that the 2023 quote reflects hardware prices at a time when PV module
+costs were substantially higher than current market levels; module prices have fallen
+significantly since then.
+The installation cost components (labour, mounting, wiring, inspection), however, remain
+largely unchanged and are therefore still representative.
+The resulting fitted parameters are listed in \autoref{tab:econ_params}.
+Market data scatter plots and fitted curves for the HTHP, PV, and BESS are collected in
+Appendix~\ref{appendix:capex_fits}
+(Figures~\ref{fig:capex_hthp}--\ref{fig:capex_bess}).
+For the HTHP, the fixed-plus-variable structure follows directly from the manufacturer
+specific-cost data (Figure~\ref{fig:capex_hthp}).
+For the BESS, quotes from BYD, SolarEdge, and Huawei are used
+(Figure~\ref{fig:capex_bess}).
+For the two TES options, the fits are derived from manufacturer quotes for LTES and WTES
+respectively.
+The WTES market data is quoted per litre of vessel volume; to express it on the same
+thermal-energy basis as the LTES data, each data point is converted using the sensible
+heat capacity of water and the system temperature swing:
+\begin{equation}
+    c_\mathrm{v,th} = \frac{c_\mathrm{v,L}}{\rho_w\, c_{p,w}\, \Delta T_\mathrm{HC} / 3.6 \times 10^6},
+    \label{eq:wtes_eur_per_kwh}
+\end{equation}
+where $\rho_w = 971.8\,\mathrm{kg/m^3}$, $c_{p,w} = 4190\,\mathrm{J/(kg\cdot K)}$, and
+$\Delta T_\mathrm{HC} = 20\,\mathrm{K}$ is the supply-to-return temperature difference
+of the M-accent heating circuit as specified in the P\&ID.
+This yields a conversion factor of approximately $0.0226\,\mathrm{kWh/L}$, so the
+variable cost of ${\approx}$\,\euro1.17/L becomes ${\approx}$\,\euro52/kWh$_\mathrm{th}$.
+\textbf{This unit conversion is highly sensitive to the assumed temperature swing: halving
+$\Delta T_\mathrm{HC}$ to 10\,K would double the specific cost to
+${\approx}$\,\euro104/kWh$_\mathrm{th}$, while a wider swing of 40\,K would halve it to
+${\approx}$\,\euro26/kWh$_\mathrm{th}$.
+The value of 20\,K is specific to the M-accent P\&ID and must be revisited if the
+model is applied to a system with a different supply/return temperature regime.}
+The resulting specific-cost curves for both TES types are overlaid and compared directly in
+Figure~\ref{fig:capex_tes_compare} (Appendix~\ref{appendix:capex_fits}).
+
+% ------------------------------------------------------------
+\subsection{Other Economic Parameters}
+\label{sub:other_econ}
+% ------------------------------------------------------------
+
+\autoref{tab:other_econ} lists the remaining economic parameters that appear in the
+objective function but are not technology-specific investment costs.
+
+\begin{table}[H]
+\centering
+\caption{Other economic parameters used in the objective function.}
+\label{tab:other_econ}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccc}
+\hline
+\textbf{Parameter} & \textbf{Value} & \textbf{Unit} & \textbf{Source} \\
+\hline
+Discount rate (WACC)        & 5.0       & \%             & \cite{IRENA2023Costs} \\
+VAT (applied to all costs)  & 21.0      & \%             & Belgian tax legislation \\
+Capacity network tariff     & 60        & \euro/kW/yr    & Appendix~\ref{appendix:tariefkaart} \\
+Maximum annual CAPEX budget & 250\,000  & \euro/yr       & Design assumption \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\noindent The 5\,\% WACC follows the standard assumption used by IRENA for utility-scale
+renewable energy projects in OECD/Europe countries~\cite{IRENA2023Costs}.
+The role of the maximum annual CAPEX budget is discussed in depth in
+Eq.~\eqref{eq:capex_budget}.
+The tariff values are derived in Section~\ref{subsec:price_data}; the capacity tariff
+is formalised as a MILP constraint in Eq.~\eqref{eq:peak_track}--\eqref{eq:opex_cap}.
 
 % ============================================================
 \section{Objective Function}
 \label{sec:objective_function}
 % ============================================================
 
-% TODO: Minimise total annualised system cost:
-%   min  CAPEX_annualised(x) + OPEX(u(t))
-%
-% TODO: CAPEX terms (annualised via Annuity Factor ANF):
-%   - HTHP:  c_HTHP * Q_hp*  * ANF_HTHP
-%   - PV:    c_PV   * A_pv*  * ANF_PV
-%   - BESS:  c_BESS_E * E*  +  c_BESS_P * P*   (energy + power component)  * ANF_BESS
-%   - TES:   c_TES  * V_tes* * ANF_TES
-%   - E-boiler: c_eb * Q_eb*  * ANF_eb
-%
-% TODO: OPEX terms (summed over all 8760 time steps):
-%   - Electricity purchase cost:  sum_t  lambda(t) * P_grid,import(t) * dt
-%   - Feed-in revenue (if applicable): - sum_t  lambda_fit(t) * P_grid,export(t) * dt
-%   - Capacity/network tariff on peak demand
-%
-% TODO: State Annuity Factor formula:  ANF = r*(1+r)^n / ((1+r)^n - 1)
-%       with discount rate r and asset lifetime n
+The MILP minimises the \textbf{total annualised system cost}, which is the sum of
+the annualised capital expenditure (CAPEX) for all installed technologies and the
+annual operational expenditure (OPEX) including electricity purchase, feed-in
+revenue, network tariffs, and a fixed connection cost.
+VAT at 21\,\% is applied to all cost components — both CAPEX and OPEX.
+
+% ------------------------------------------------------------
+\subsection*{Annualised Investment Cost (CAPEX)}
+% ------------------------------------------------------------
+
+Each technology contributes a term that is linear in its sizing variable.
+The TES type-selection binary ($y_\mathrm{ltes}$, $y_\mathrm{wtes}$) forces
+exactly one storage technology to be active, so only one of the two TES terms
+is non-zero at optimality:
+\begin{equation}
+    \mathrm{CAPEX}_\mathrm{ann}
+    =\; \alpha_\mathrm{PV}\,C_\mathrm{PV}
+      + \alpha_\mathrm{bat}\,C_\mathrm{bat}
+      + \alpha_\mathrm{HP}\,C_\mathrm{HP}
+      + \alpha_\mathrm{ltes}\,C_\mathrm{ltes}
+      + \alpha_\mathrm{wtes}\,h_\mathrm{wtes},
+    \label{eq:capex_ann}
+\end{equation}
+where $\alpha_k$ denotes the annualised unit cost of technology $k$ (computed via
+the Capital Recovery Factor, Section~\ref{sub:capex_model}), and the sizing
+variables $C_\mathrm{PV}$, $C_\mathrm{bat}$, $C_\mathrm{HP}$, $C_\mathrm{ltes}$,
+and $h_\mathrm{wtes}$ are the MILP continuous decision variables defined in
+Sections~\ref{sec:pv_model}--\ref{sec:bess_model} and~\ref{sec:tes}.
+The fixed-cost intercepts ($\alpha_{\cdot,0}$) are absorbed into the
+technology-selection binaries as described in Section~\ref{sub:capex_model} and
+are omitted from~\eqref{eq:capex_ann} for clarity; their values are listed in
+\autoref{tab:tech_params}.
+
+% ------------------------------------------------------------
+\subsection*{Annual Operational Cost (OPEX)}
+% ------------------------------------------------------------
+
+Three operational cost terms are summed over the full 8\,760-hour horizon
+$\mathcal{T} = \{1,\ldots,8760\}$:
+
+\paragraph{Electricity purchase.}
+\begin{equation}
+    C_\mathrm{buy} = \sum_{t \in \mathcal{T}} \lambda_t^\mathrm{buy}\,P_\mathrm{buy}(t)\,\Delta t,
+    \label{eq:opex_buy}
+\end{equation}
+where $\lambda_t^\mathrm{buy}$ [\euro/kWh] is the hourly all-in purchase price
+(Section~\ref{subsec:price_data}) and $P_\mathrm{buy}(t) \geq 0$ [kW] is the
+grid import power.
+
+\paragraph{Feed-in revenue.}
+Surplus renewable generation can be exported to the grid at a regulated feed-in
+tariff $\lambda_t^\mathrm{sell}$:
+\begin{equation}
+    C_\mathrm{sell} = \sum_{t \in \mathcal{T}} \lambda_t^\mathrm{sell}\,P_\mathrm{sell}(t)\,\Delta t.
+    \label{eq:opex_sell}
+\end{equation}
+This term appears with a negative sign in the objective (it is revenue). The
+constraint~\eqref{eq:pv_sellcap} prevents the model from purchasing cheap
+grid electricity purely to resell it at a profit.
+
+\paragraph{Capacity (network) tariff.}
+Belgian distribution tariffs charge a monthly fee proportional to the highest
+15-minute grid-import power recorded in that month~\cite{Fluvius2023}.
+This is modelled by tracking a per-month peak variable $\hat{P}_m \geq 0$ [kW]
+for each calendar month $m \in \{1,\ldots,12\}$ via the constraints
+\begin{equation}
+    \hat{P}_m \;\geq\; P_\mathrm{buy}(t), \qquad
+    \forall\; t \in \mathcal{T}_m,
+    \label{eq:peak_track}
+\end{equation}
+where $\mathcal{T}_m$ is the set of hours belonging to month $m$.
+The capacity tariff cost is then:
+\begin{equation}
+    C_\mathrm{cap} = c_\mathrm{cap} \sum_{m=1}^{12} \hat{P}_m,
+    \label{eq:opex_cap}
+\end{equation}
+with $c_\mathrm{cap} = 5\;\text{\euro/kW/month}$ (see \autoref{tab:other_econ}).
+Incorporating $\hat{P}_m$ into the objective incentivises the BESS and TES to
+absorb peak demand spikes, thereby reducing the monthly network charge.
+
+% ------------------------------------------------------------
+\subsection*{Complete Objective Function}
+% ------------------------------------------------------------
+
+Combining all terms, the MILP minimises:
+\begin{equation}
+\boxed{
+    \min\;\;
+    \Bigl(
+        \mathrm{CAPEX}_\mathrm{ann}
+        + C_\mathrm{buy}
+        - C_\mathrm{sell}
+        + C_\mathrm{cap}
+        + C_\mathrm{fixed}
+      \Bigr)\!\cdot\!(1 + \nu_\mathrm{VAT}),
+}
+    \label{eq:objective}
+\end{equation}
+where $C_\mathrm{fixed} = 200\;\text{\euro/yr}$ is the fixed annual grid-connection
+fee and $\nu_\mathrm{VAT} = 0.21$ is the VAT rate applied to all cost components
+(\autoref{tab:other_econ}).
+
+% ------------------------------------------------------------
+\subsection*{Investment Budget Constraint}
+% ------------------------------------------------------------
+
+To reflect realistic capital budgets, the annualised investment expenditure is
+capped by an exogenous parameter $\overline{\mathrm{CAPEX}}_\mathrm{ann}$:
+\begin{equation}
+    \mathrm{CAPEX}_\mathrm{ann} \;\leq\; \overline{\mathrm{CAPEX}}_\mathrm{ann},
+    \label{eq:capex_budget}
+\end{equation}
+with $\overline{\mathrm{CAPEX}}_\mathrm{ann} = 250\,000\;\text{\euro/yr}$
+(\autoref{tab:other_econ}).
+This constraint is deliberately loose relative to the expected solution and
+acts primarily as a guard against unbounded investment in degenerate scenarios.
+Its sensitivity is explored in Section~\ref{subsec:invest_budget}.
+
+% ------------------------------------------------------------
+\subsection*{Summary}
+% ------------------------------------------------------------
+
+\autoref{tab:obj_summary} collects all objective-function terms together with
+their units, the corresponding code expression, and the section where the
+underlying variables are defined.
+
+\begin{table}[H]
+\centering
+\caption{Summary of all terms in the objective function~\eqref{eq:objective}.
+         $\Delta t = 1\,\mathrm{h}$; all variables are MILP decision variables
+         unless marked as parameters.}
+\label{tab:obj_summary}
+\begin{tabular}{llll}
+\hline
+\textbf{Term} & \textbf{Expression} & \textbf{Unit} & \textbf{Defined in} \\
+\hline
+\multicolumn{4}{l}{\textit{CAPEX (subject to 21\,\% VAT)}} \\
+PV investment
+    & $\alpha_\mathrm{PV}\,C_\mathrm{PV}$
+    & \euro/yr & Sec.~\ref{sec:pv_model} \\
+BESS investment
+    & $\alpha_\mathrm{bat}\,C_\mathrm{bat}$
+    & \euro/yr & Sec.~\ref{sec:bess_model} \\
+HP investment
+    & $\alpha_\mathrm{HP}\,C_\mathrm{HP}$
+    & \euro/yr & Sec.~\ref{sec:hthp_model} \\
+LTES investment (if selected)
+    & $\alpha_\mathrm{ltes}\,C_\mathrm{ltes}$
+    & \euro/yr & Sec.~\ref{sec:tes_model} \\
+WTES investment (if selected)
+    & $\alpha_\mathrm{wtes}\,h_\mathrm{wtes}$
+    & \euro/yr & Sec.~\ref{sec:tes_model} \\
+\hline
+\multicolumn{4}{l}{\textit{OPEX (subject to 21\,\% VAT)}} \\
+Electricity purchase
+    & $\sum_t \lambda_t^\mathrm{buy}\,P_\mathrm{buy}(t)\,\Delta t$
+    & \euro/yr & Sec.~\ref{subsec:price_data} \\
+Feed-in revenue
+    & $-\sum_t \lambda_t^\mathrm{sell}\,P_\mathrm{sell}(t)\,\Delta t$
+    & \euro/yr & Sec.~\ref{subsec:price_data} \\
+Capacity network tariff
+    & $c_\mathrm{cap}\sum_m \hat{P}_m$
+    & \euro/yr & \autoref{tab:other_econ} \\
+Fixed connection cost
+    & $C_\mathrm{fixed} = 200$\;\euro/yr
+    & \euro/yr & \autoref{tab:other_econ} \\
+\hline
+\end{tabular}
+\end{table}
 
 % ============================================================
 \section{Solver Configuration and Solution Strategy}
 \label{sec:solver_settings}
 % ============================================================
 
-% TODO: Solver: Gurobi (commercial) or CBC (open-source) via PuLP / Pyomo in Python
-% TODO: Relative MIP optimality gap tolerance: 0.1 %
-% TODO: Time limit: 3600 s
-% TODO: Warm-start strategy (if used)
-% TODO: Representative-period approach: describe any time-series clustering/reduction used
-%       to keep the problem tractable (e.g. typical weeks, seasonal representative days)
-% TODO: Hardware / computational environment used for results
+\subsection*{Solver and Interface}
+
+All optimisation runs are executed with \textbf{Gurobi}~\cite{gurobi}, a
+state-of-the-art commercial MILP solver, accessed through the native
+\texttt{gurobipy} Python API.
+Gurobi is widely regarded as the fastest general-purpose MILP solver available
+and is used under an academic licence for this research~\cite{gurobi}.
+The model is constructed entirely in Python: decision variables, constraints, and
+the objective function are assembled programmatically before being handed off to
+Gurobi for solution.
+
+\subsection*{Problem Size}
+
+The full-year formulation with an hourly time resolution covers $T = 8\,760$
+time steps.
+The resulting MILP contains on the order of $\mathcal{O}(10^5)$ decision
+variables (continuous and binary) and $\mathcal{O}(10^5)$ linear constraints.
+The binary variables arise from the on/off state of the heat pump ($u_\mathrm{hp}(t)$),
+the technology-selection decisions ($y_\mathrm{PV}$, $y_\mathrm{bat}$,
+$y_\mathrm{HP}$, $y_\mathrm{ltes}$, $y_\mathrm{wtes}$), and the
+charge/discharge mutually-exclusive binaries for the BESS.
+The large number of binary variables makes the problem computationally intensive,
+which motivates the solver settings described below.
+
+\subsection*{MIP Optimality Gap}
+
+Gurobi's branch-and-bound algorithm maintains two bounds throughout the
+search: a \textbf{lower bound} obtained by relaxing the integrality
+requirements (the LP relaxation), and an \textbf{upper bound} given by the
+best integer-feasible solution found so far.
+The \textbf{MIP gap} is defined as the relative difference between these two
+bounds:
+\begin{equation}
+    \delta_\mathrm{MIP}
+    = \frac{z_\mathrm{UB} - z_\mathrm{LB}}{|z_\mathrm{UB}|},
+    \label{eq:mip_gap}
+\end{equation}
+where $z_\mathrm{UB}$ and $z_\mathrm{LB}$ are the current upper and lower
+bound on the objective value.
+The solver terminates as soon as $\delta_\mathrm{MIP}$ falls below a
+user-specified tolerance \texttt{MIPGap}.
+A gap of 0\,\% certifies global optimality; a small positive gap means the
+returned solution is within that percentage of the true optimum.
+For investment decisions the quality of the solution is not meaningfully
+affected by a gap of a few percent, so a non-zero tolerance is set to avoid
+the disproportionate computation time required to close the final fraction of
+the gap.
+The exact tolerance used in each simulation run is reported alongside the
+results in Chapter~\ref{chap:results}.
+
+\subsection*{Time Limit}
+
+To keep individual scenario runs tractable, a wall-clock time limit is imposed
+via Gurobi's \texttt{TimeLimit} parameter.
+If the solver reaches this limit before the MIP gap criterion is met, it
+returns the best integer-feasible solution found so far together with the
+achieved gap.
+The code checks explicitly for this case:
+\begin{itemize}
+    \item If the time limit is reached \emph{with} at least one feasible
+          solution, the run is accepted and the achieved gap is recorded.
+    \item If the time limit is reached \emph{without} any feasible solution,
+          the run is flagged as infeasible and excluded from analysis.
+\end{itemize}
+The specific time limit per run is chosen to balance result quality against
+the total computation time for the full scenario sweep; the value used for
+each simulation is reported in the results.
+
+\subsection*{Hardware Environment}
+
+All computations were performed on a laptop equipped with an
+\textbf{Intel Core i7-10750H} processor (6 physical cores, 12 logical
+threads at a base clock of 2.60\,GHz) and \textbf{16\,GB} of RAM, running
+Windows 11.
+Gurobi exploits multi-threading natively: the branch-and-bound tree is
+explored in parallel across all available logical threads, which substantially
+reduces wall-clock time for the 8\,760-step annual MILP.
 
 
 
@@ -1910,23 +3732,504 @@ not affect the global optimality guarantee of the MILP solver.
 
 
 
-%----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-%-----------------------------------------------------------------------------
-%-----------------------------------------------------------------------------
-%-----------------------------------------------------------------------------
-%-----------------------------------------------------------------------------
-%-----------------------------------------------------------------------------
-%-----------------------------------------------------------------------------
-%-----------------------------------------------------------------------------
-%-----------------------------------------------------------------------------
-%-----------------------------------------------------------------------------
-%-----------------------------------------------------------------------------
-%-----------------------------------------------------------------------------
-%-----------------------------------------------------------------------------
-%-----------------------------------------------------------------------------
-%-----------------------------------------------------------------------------
-%-----------------------------------------------------------------------------
-%-----------------------------------------------------------------------------
+% ============================================================
+\chapter{Results}
+\label{chap:results}
+% ============================================================
+
+% ============================================================
+\section{Baseline Case: Current Situation}
+\label{sec:results_baseline}
+% ============================================================
+
+The baseline represents the current situation at the Eelko building: two gas boilers
+covering the full thermal demand, the existing 34.63\,kW$_\mathrm{p}$ rooftop PV
+installation supplying part of the electrical load, no BESS, and grid electricity
+covering the remainder.
+Its annual cost is calculated directly from measured energy consumption and current
+market prices, providing the reference TCO against which every optimised scenario is
+compared.
+
+The existing PV system is treated as a sunk investment: its CAPEX is not included
+in the baseline cost, as the capital has already been committed.
+Only its operating benefit (reduced grid imports and feed-in revenue) is included
+in the baseline OPEX.
+The optimisation then asks whether additional investment in BESS, HTHP, and TES
+is economically justified on top of the existing PV.
+
+% TODO: Report measured annual gas consumption [MWh/yr] and electricity consumption [kWh/yr].
+% TODO: Report measured annual PV production [kWh/yr] from the 34.63 kWp system (2023 data).
+% TODO: Compute baseline OPEX = gas cost + net electricity cost (buy minus sell)
+%       at 2023/2025 tariffs, including capacity tariff on measured monthly peaks.
+% TODO: Report annual CO2 emissions: gas combustion + net grid electricity
+%       (using Belgian marginal emission factor).
+% TODO: No CAPEX term for existing assets: boilers and PV are already installed
+%       and their remaining book value is treated as sunk cost.
+
+% ------------------------------------------------------------
+\subsection{Current Prices: Static Baseline}
+\label{sub:baseline_static}
+% ------------------------------------------------------------
+
+% TODO: Calculate baseline OPEX using today's gas and electricity prices.
+%       Gas: spot TTF + distribution tariff + taxes [EUR/MWh_gas].
+%       Electricity: EPEX spot + buy markup + capacity tariff + fixed connection cost.
+% TODO: This is the simplest benchmark and reflects the actual bill the building
+%       owner pays today, with the existing PV already reducing grid imports.
+
+% ------------------------------------------------------------
+\subsection{Forward-Looking Baseline: Energy Price Trajectories}
+\label{sub:baseline_forward}
+% ------------------------------------------------------------
+
+A static baseline computed at today's prices is a useful reference point but is
+insufficient as a decision-making tool.
+The economic case for electrification over a 20--25 year asset lifetime depends
+critically on how gas and electricity prices evolve over that period, and there is
+substantial uncertainty on both sides.
+
+Two structural drivers are expected to increase the relative cost of gas and shift
+the baseline upward over time.
+
+The first is \textbf{ETS2}, the European Union's second Emissions Trading System,
+which extends carbon pricing to building heating fuels and road transport.
+ETS2 is scheduled to enter into force in 2028, with a transitional price cap and
+a market-stability reserve mechanism.
+The European Commission projects ETS2 carbon prices rising from an initial
+cap of around \euro{45}/tCO$_2$ at launch to well above \euro{100}/tCO$_2$ by
+the mid-2030s under central projections~\cite{EuropeanCommission2021fitfor55},
+though the range across scenarios is wide.
+For natural gas (emission factor $\approx 0.202$\,tCO$_2$/MWh$_\mathrm{gas}$)
+an ETS2 price of \euro{100}/tCO$_2$ adds approximately \euro{20}/MWh to the
+gas commodity price, a cost increase of roughly 40--60\,\% relative to recent
+average prices.
+This directly raises the operating cost of the gas boiler baseline with each
+passing year after 2027.
+
+The second driver is \textbf{electricity price uncertainty}.
+While high renewable penetration is expected to structurally lower average wholesale
+prices in the long run, short-term volatility remains high and the pace of
+decarbonisation affects the spread between peak and off-peak prices.
+Lower average prices reduce PV export revenue and the value of BESS arbitrage,
+while higher volatility can increase both.
+
+% TODO: Define three gas price trajectories to bracket the uncertainty:
+%       (i)  Static: today's price held constant (lower bound for gas cost).
+%       (ii) Central: ETS2 carbon price per European Commission central projection,
+%            added on top of a flat gas commodity price.
+%       (iii) High: ETS2 at upper projection + gas commodity at historical peak levels.
+% TODO: Define two electricity price trajectories:
+%       (i)  Low: price_multiplier declining to 0.7 by 2030 (high renewables penetration).
+%       (ii) High: price_multiplier rising to 1.4 by 2030 (delayed capacity build-out).
+% TODO: Combine into a 3x2 matrix of forward-looking baseline costs over the
+%       investment horizon (2025--2050).
+%       Present as a time-series band plot showing the range of baseline gas costs
+%       and the uncertainty this creates for the payback period of electrification.
+% TODO: Use the central trajectory as the reference for the scenario analysis
+%       in Section~\ref{sec:results_scenarios}, and treat the high/low bounds
+%       as bounding scenarios.
+
+% ============================================================
+\section{Optimal System Configuration}
+\label{sec:results_optimal}
+% ============================================================
+
+% TODO: Present the MILP optimal solution for the base scenario (2023 prices,
+%       no scenario perturbations).
+% TODO: Report optimal sizing: C_PV [kWp], C_bat [kWh], Q_hp [kW_th],
+%       TES type selected and capacity.
+% TODO: Total annualised cost breakdown: CAPEX vs OPEX, per technology.
+% TODO: Annual energy flows: PV self-consumption, grid buy/sell, HP heat production,
+%       TES charging/discharging.
+% TODO: Monthly and hourly dispatch profiles (representative days per season).
+
+% ============================================================
+\section{Sensitivity Analysis}
+\label{sec:results_sensitivity}
+% ============================================================
+
+The base-case solution (Section~\ref{sec:results_optimal}) reveals that at current
+market conditions the MILP consistently saturates the PV capacity at the roof
+constraint of 50\,kW$_\mathrm{p}$: PV is so profitable under 2023 Belgian electricity
+prices, a 25-year lifetime, and a 5\,\% discount rate that the capacity bound is always
+binding.
+This makes the base case a corner solution rather than an interior optimum, which
+limits interpretability.
+The sensitivity analysis therefore has two goals: (i) identify which parameters
+the optimal sizing and TCO are most responsive to, and (ii) locate the breakeven
+thresholds at which each technology transitions from fully deployed to partially
+or not installed.
+
+The analysis uses a systematic \textbf{one-at-a-time} (OAT) approach.
+Each parameter listed in Table~\ref{tab:sens_params} is swept across a range
+while all other parameters remain at their baseline values.
+For each parameter value the full MILP is re-solved, and the resulting optimal
+$C_\mathrm{PV}$, $C_\mathrm{bat}$, $Q_\mathrm{hp}^*$, TES capacity, and total
+annualised cost are recorded.
+
+\begin{table}[H]
+\centering
+\caption{Parameters varied in the sensitivity analysis, their baseline values,
+         and the ranges explored.}
+\label{tab:sens_params}
+\begin{tabular}{llcll}
+\hline
+\textbf{Parameter} & \textbf{Description} & \textbf{Baseline} & \textbf{Range} & \textbf{Unit} \\
+\hline
+\texttt{CAPEX\_PV\_UNIT}      & PV variable CAPEX          & 532   & 200 -- 1\,200 & \euro/kW$_\mathrm{p}$ \\
+\texttt{CAPEX\_BAT\_UNIT}     & BESS variable CAPEX        & 456   & 150 -- 900    & \euro/kWh \\
+\texttt{CAPEX\_HP\_UNIT}      & HTHP variable CAPEX        & 644   & 300 -- 1\,200 & \euro/kW$_\mathrm{th}$ \\
+\texttt{CAPEX\_LTES\_UNIT}    & LTES variable CAPEX        & 197   & 100 -- 500    & \euro/kWh$_\mathrm{th}$ \\
+\texttt{WTES\_REF\_COST\_EUR\_L} & WTES unit cost          & 1.165 & 0.5 -- 3.0    & \euro/L \\
+\texttt{DISCOUNT\_RATE}       & WACC                       & 5.0   & 2 -- 12       & \% \\
+\texttt{MAX\_ANNUAL\_CAPEX}   & Investment budget cap      & 250\,000 & 50\,000 -- 500\,000 & \euro/yr \\
+\texttt{C\_CAP}               & Capacity network tariff    & 5.0   & 0 -- 15       & \euro/kW/month \\
+\texttt{price\_multiplier}    & Electricity price level    & 1.0   & 0.4 -- 2.0    & -- \\
+\texttt{GAS\_DEMAND\_YEAR}    & Thermal demand profile year  & 2021  & 2020, 2021, 2022, 2023 & -- \\
+\texttt{SOLAR\_YEAR}       & Solar year   & 2023  & 2020, 2021, 2022, 2023 & -- \\
+\texttt{temp\_h}              & HP supply temperature      & 70    & 50 -- 75      & $^\circ$C \\
+\texttt{COP\_multiplier}      & HP performance scaling     & 1.0   & 0.7 -- 1.3    & -- \\
+\hline
+\end{tabular}
+\end{table}
+
+% ------------------------------------------------------------
+\subsection{Tornado Chart: Parameter Ranking by Impact on TCO}
+\label{sub:sens_tornado}
+% ------------------------------------------------------------
+
+% TODO: For each parameter in Table~\ref{tab:sens_params}, compute the TCO at the
+%       low and high end of its range (with all others at baseline).
+%       Plot a tornado chart with parameters ranked by (TCO_high - TCO_low).
+%       This identifies which parameters dominate and deserve deeper analysis.
+%       Expected dominant parameters: price_multiplier, CAPEX_PV_UNIT, DISCOUNT_RATE, C_CAP.
+
+% ------------------------------------------------------------
+\subsection{PV CAPEX and Electricity Price: Breakeven Map}
+\label{sub:sens_pv_breakeven}
+% ------------------------------------------------------------
+
+The 2D breakeven map is the central result of the sensitivity analysis.
+Rather than varying one parameter at a time, it sweeps PV CAPEX and the electricity
+price multiplier simultaneously over a grid and records the optimal PV capacity
+returned by the MILP at each combination.
+The result is partitioned into three qualitative regimes: PV not installed, PV
+partially installed, and PV saturated at the 50\,kW$_\mathrm{p}$ roof constraint.
+The boundaries between these regimes are the breakeven thresholds.
+
+Figure~\ref{fig:breakeven_dummy} shows an illustrative example of this map generated
+with fictive but physically motivated data.
+The baseline operating point (532\,\euro/kW$_\mathrm{p}$, price multiplier\,$= 1.0$)
+is marked with a star and lies firmly in the saturated region, confirming that at
+current conditions the MILP always installs PV at full capacity.
+Moving along the x-axis (increasing CAPEX at fixed price) or downward along the y-axis
+(falling electricity prices at fixed CAPEX) eventually crosses the saturation threshold,
+beyond which partial installation becomes optimal, and then the install threshold,
+beyond which PV is not economical at all.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{images/breakeven_map_dummy.png}
+    \caption{Illustrative PV breakeven map (fictive data).
+             Left: continuous optimal PV capacity [kWp] as a function of PV CAPEX
+             and electricity price multiplier. Right: discrete regime classification
+             (not installed / partial / saturated at 50\,kWp).
+             The star marks the baseline operating point.
+             Dashed contour lines are the breakeven boundaries.
+             \textbf{Note: values are illustrative only; actual results will be
+             produced by sweeping the MILP.}}
+    \label{fig:breakeven_dummy}
+\end{figure}
+
+% TODO: Replace dummy figure with actual MILP sweep results.
+%       Sweep CAPEX_PV_UNIT from 200 to 1200 EUR/kWp (15 points) and
+%       price_multiplier from 0.4 to 2.0 (15 points) = 225 MILP runs.
+%       Record optimal C_PV at each grid point and regenerate both panels.
+
+% ------------------------------------------------------------
+\subsection{Discount Rate}
+\label{sub:sens_discount}
+% ------------------------------------------------------------
+
+% TODO: Sweep DISCOUNT_RATE from 2\% to 12\% in steps of 1\%.
+% TODO: Report optimal C_PV, C_bat, Q_hp* and total annualised cost at each step.
+% TODO: Higher discount rate penalises long-lived assets (PV 25 yr) more than
+%       short-lived ones (BESS 15 yr) — show how the technology mix shifts.
+% TODO: Identify the discount rate at which PV is no longer installed at full capacity.
+
+% ------------------------------------------------------------
+\subsection{Capacity Tariff and BESS Sizing}
+\label{sub:sens_ccap}
+% ------------------------------------------------------------
+
+% TODO: Sweep C_CAP from 0 to 15 EUR/kW/month.
+% TODO: The capacity tariff is the primary economic driver for BESS investment:
+%       a higher tariff makes peak shaving more valuable, increasing optimal BESS size.
+% TODO: Report optimal C_bat and monthly peak reduction at each tariff level.
+% TODO: Identify the minimum tariff at which BESS becomes economical.
+
+% ------------------------------------------------------------
+\subsection{Heat Pump COP and Supply Temperature}
+\label{sub:sens_hp}
+% ------------------------------------------------------------
+
+% TODO: Sweep COP_multiplier from 0.7 to 1.3 and temp_h from 55 to 80 degC.
+% TODO: Higher supply temperature degrades Lorenz COP, increasing electricity
+%       consumption of the HP and its operating cost.
+% TODO: Show the impact on annual HP electricity consumption and total TCO.
+% TODO: Discuss the implication for system design: lowering supply temperature
+%       (e.g. via improved heat distribution) has measurable economic benefit.
+
+% ------------------------------------------------------------
+\subsection{Investment Budget Cap}
+\label{sub:sens_budget}
+% ------------------------------------------------------------
+
+% TODO: Sweep MAX_ANNUAL_CAPEX from 50,000 to 500,000 EUR/yr.
+% TODO: Identify the budget level at which each technology enters the solution
+%       (ordered by profitability): PV first, then BESS, then HP/TES.
+% TODO: This traces the efficient investment frontier as a function of available capital.
+
+% ============================================================
+\section{Scenario Analysis}
+\label{sec:results_scenarios}
+% ============================================================
+
+While the sensitivity analysis varies parameters individually to locate breakeven
+thresholds, the scenario analysis combines parameters into coherent narratives
+representing plausible future conditions.
+Each scenario is defined in Table~\ref{tab:scenarios} and produces a complete
+optimal system configuration and TCO that can be compared against the base case.
+
+\begin{table}[H]
+\centering
+\caption{Scenario definitions. Parameters not listed take their baseline values
+         from Table~\ref{tab:sens_params}.}
+\label{tab:scenarios}
+\begin{tabular}{lp{3.5cm}p{7cm}}
+\hline
+\textbf{Scenario} & \textbf{Label} & \textbf{Parameter changes} \\
+\hline
+A & Base case (2025)
+  & All parameters at baseline. \\
+B & High energy prices
+  & \texttt{price\_multiplier} = 1.5.
+    Represents sustained high spot prices. \\
+C & Low PV cost future
+  & \texttt{CAPEX\_PV\_UNIT} = 300\,\euro/kW$_\mathrm{p}$.
+    Reflects continued module cost decline to 2030 projections. \\
+D & Tight capital
+  & \texttt{DISCOUNT\_RATE} = 8\,\%,
+    \texttt{MAX\_ANNUAL\_CAPEX} = 100\,000\,\euro/yr.
+    Represents a building owner with limited access to low-cost financing. \\
+E & Low energy prices
+  & \texttt{price\_multiplier} = 0.6.
+    Represents a future with high renewable penetration and low wholesale prices. \\
+F & Pessimistic
+  & \texttt{price\_multiplier} = 0.6,
+    \texttt{CAPEX\_PV\_UNIT} = 900\,\euro/kW$_\mathrm{p}$,
+    \texttt{DISCOUNT\_RATE} = 8\,\%.
+    Tests whether any electrification investment remains justified. \\
+G & High price volatility
+  & \texttt{PRICE\_YEAR} = 2025 (actual ENTSO-E time series).
+    As shown in Figure~\ref{fig:low_price_hours}, 2025 already exhibits
+    a sharp increase in near-zero and negative price hours driven by
+    high renewable generation, while residual scarcity events still
+    produce peak prices above 200\,\euro/MWh.
+    This scenario tests how the co-optimisation of storage dispatch and
+    PV sizing responds to a price distribution with high spread, rather
+    than a uniformly scaled mean. \\
+\hline
+\end{tabular}
+\end{table}
+
+% TODO: For each scenario report: optimal sizing (C_PV, C_bat, Q_hp*, TES),
+%       total annualised cost, breakdown CAPEX/OPEX, self-consumption fraction,
+%       annual CO2 reduction vs baseline.
+% TODO: Present results in a comparative bar chart (one bar per scenario,
+%       stacked by cost component) and a sizing comparison table.
+
+% ------------------------------------------------------------
+\subsection{Scenario A: Base Case}
+\label{sub:scenario_base}
+% ------------------------------------------------------------
+
+% TODO: Repeat and summarise the base-case optimal result here for comparison.
+%       Cross-reference Section~\ref{sec:results_optimal}.
+
+% ------------------------------------------------------------
+\subsection{Scenario B: High Energy Prices}
+\label{sub:scenario_highprice}
+% ------------------------------------------------------------
+
+% TODO: Does the already-saturated PV remain at 50 kWp?
+%       Does BESS sizing increase due to higher arbitrage value?
+%       Does the HP become more attractive relative to residual gas use?
+
+% ------------------------------------------------------------
+\subsection{Scenario C: Low PV Cost Future}
+\label{sub:scenario_lowpv}
+% ------------------------------------------------------------
+
+% TODO: PV is already maxed in the base case. Does lower CAPEX free up budget
+%       for more BESS or larger TES? Or does the budget cap become non-binding?
+
+% ------------------------------------------------------------
+\subsection{Scenario D: Tight Capital}
+\label{sub:scenario_capital}
+% ------------------------------------------------------------
+
+% TODO: Higher discount rate and lower budget cap — which technology is dropped first?
+%       Expected: BESS and TES are dropped before PV since PV has fastest payback.
+
+% ------------------------------------------------------------
+\subsection{Scenario E: Low Energy Prices}
+\label{sub:scenario_lowprice}
+% ------------------------------------------------------------
+
+% TODO: At price_multiplier = 0.6, does PV remain profitable?
+%       Cross-reference the breakeven map from Section~\ref{sub:sens_pv_breakeven}.
+
+% ------------------------------------------------------------
+\subsection{Scenario F: Pessimistic}
+\label{sub:scenario_pessimistic}
+% ------------------------------------------------------------
+
+% TODO: Stress test — does any electrification investment survive?
+%       If yes, which technology is the last to remain in the solution?
+
+% ============================================================
+\section{Comparison with Traditional Rule-of-Thumb Sizing}
+\label{sec:results_traditional}
+% ============================================================
+
+Engineering practice has historically relied on simple rules of thumb to size
+thermal and electrical storage systems, without solving an optimisation problem.
+This section applies those conventional methods to the Eelko building and compares
+the resulting system against the MILP optimum, in terms of both total annualised
+cost and annual energy performance.
+The comparison serves two purposes: it validates that the MILP produces a
+meaningfully better solution than naive sizing, and it quantifies the economic value
+of optimisation itself.
+
+% ------------------------------------------------------------
+\subsection{Traditional Sizing Rules}
+\label{sub:trad_rules}
+% ------------------------------------------------------------
+
+The following industry rules of thumb are applied, each grounded in standard
+engineering practice for commercial building HVAC systems.
+
+\paragraph{Heat pump (HTHP).}
+In traditional design the heat pump is sized to cover the design-day peak thermal
+load without any storage buffer, giving a conservative, 100\,\% backup capacity.
+The measured peak thermal demand at the Eelko building is
+120.6\,kW$_\mathrm{th}$ (2021 gas meter data), so the traditional HP size is
+$Q_\mathrm{hp,trad} = 120.6\,\mathrm{kW_{th}}$.
+
+\paragraph{Thermal Energy Storage (TES).}
+A widely used rule of thumb in energy system modelling sizes TES to cover 6--7
+hours of peak thermal load, providing a buffer to allow the heat pump to operate
+at a stable part-load point and shift peak demand.
+This convention is implemented in the oemof.thermal open-source energy modelling
+framework via the parameter \texttt{invest\_relation\_input\_capacity = 1/6},
+which couples the storage energy capacity to its rated power in a fixed 6:1 ratio
+during investment optimisation~\cite{oemofthermal2024}.
+Using the 6-hour rule:
+\begin{equation}
+    C_\mathrm{TES,trad} = 6 \times Q_\mathrm{hp,trad}
+    = 6 \times 120.6 \approx 724\,\mathrm{kWh_{th}}.
+    \label{eq:tes_rule}
+\end{equation}
+The 7-hour rule yields 844\,kWh$_\mathrm{th}$.
+A more conservative alternative uses the 95th-percentile load
+(70.7\,kW$_\mathrm{th}$) rather than the absolute peak, giving
+424--495\,kWh$_\mathrm{th}$.
+
+\paragraph{PV array.}
+A common rule sizes PV to offset the annual electrical base load, targeting a
+self-consumption ratio of approximately 30--40\,\% of annual grid imports.
+With the existing 34.63\,kW$_\mathrm{p}$ already installed, a traditional
+engineer would typically add no further PV unless a detailed yield study
+was commissioned.
+Alternatively, PV is sized to fill the available roof area, which gives the
+same 50\,kW$_\mathrm{p}$ upper bound used in the MILP.
+
+\paragraph{Battery Energy Storage (BESS).}
+A standard rule sizes BESS to store 2--4 hours of average building electrical
+load, providing overnight or peak-period autonomy.
+The annual mean electrical demand from the Eelko building is approximately
+[TODO: insert from meter data]\,kW, giving a traditional BESS size of
+[TODO: 2--4\,h $\times$ mean load]\,kWh.
+
+% ------------------------------------------------------------
+\subsection{Cost and Performance Comparison}
+\label{sub:trad_comparison}
+% ------------------------------------------------------------
+
+Table~\ref{tab:trad_vs_milp} compares the traditionally sized system against
+the MILP optimum across the key metrics.
+
+\begin{table}[H]
+\centering
+\caption{Traditional rule-of-thumb sizing vs MILP optimal sizing.
+         All costs are annualised at $r = 5\,\%$.
+         Values marked [TODO] to be filled after MILP results are available.}
+\label{tab:trad_vs_milp}
+\begin{tabular}{lcc}
+\hline
+\textbf{Metric} & \textbf{Traditional sizing} & \textbf{MILP optimum} \\
+\hline
+HP capacity [kW$_\mathrm{th}$]      & 120.6          & [TODO] \\
+TES capacity [kWh$_\mathrm{th}$]    & 724 (6h rule)  & [TODO] \\
+PV capacity [kW$_\mathrm{p}$]       & 34.63 (existing) & [TODO] \\
+BESS capacity [kWh]                  & [TODO]         & [TODO] \\
+Annual CAPEX [\euro/yr]              & [TODO]         & [TODO] \\
+Annual OPEX [\euro/yr]               & [TODO]         & [TODO] \\
+Total annualised cost [\euro/yr]     & [TODO]         & [TODO] \\
+Annual CO$_2$ reduction vs baseline  & [TODO]         & [TODO] \\
+PV self-consumption [\%]             & [TODO]         & [TODO] \\
+\hline
+\textbf{Cost saving vs traditional}  & reference      & [TODO]\,\% \\
+\hline
+\end{tabular}
+\end{table}
+
+% TODO: Run the MILP with the traditional sizing fixed (i.e. fix C_PV, C_bat,
+%       Q_hp, C_TES to the rule-of-thumb values and solve only for dispatch).
+%       Compare the resulting dispatch cost against the fully optimised solution.
+% TODO: Discuss where the MILP diverges most from the rule of thumb:
+%       - Is TES over- or under-sized by the 6h rule relative to the MILP optimum?
+%         The 6h rule gives 724 kWh_th; the MILP may find a much smaller TES is
+%         sufficient because it can time-shift HP operation more precisely.
+%       - Does the MILP select a smaller HP because it relies on TES to flatten peaks,
+%         whereas the traditional approach sizes the HP for the worst-case hour?
+%       - How much of the TCO difference comes from CAPEX (over-sizing) vs OPEX
+%         (suboptimal dispatch)?
+% TODO: Quantify the value of optimisation: TCO_traditional - TCO_MILP [EUR/yr]
+%       and express as a percentage of the traditional TCO.
+
+% ============================================================
+\section{Discussion}
+\label{sec:results_discussion}
+% ============================================================
+
+% TODO: Synthesise findings across scenarios and sensitivity runs.
+% TODO: Highlight which parameters the optimal solution is most sensitive to.
+% TODO: Compare against literature benchmarks where available.
+% TODO: Discuss model limitations (fixed COP, single representative year,
+%       no intra-hour dynamics, no grid congestion modelling).
+
+% ============================================================
+\chapter{Conclusion}
+\label{chap:conclusion}
+% ============================================================
+
+% TODO: Summarise the main findings.
+% TODO: Answer the research question stated in the introduction.
+% TODO: Recommendations for the M-accent building operator.
+% TODO: Directions for future work (multi-year rolling horizon, stochastic prices,
+%       grid congestion, real-time control).
 
 \bibliographystyle{unsrt}
 \bibliography{bibliography.bib}
@@ -1940,8 +4243,114 @@ not affect the global optimality guarantee of the MILP solver.
 
 \includepdf{Appendices/DatasheetHTHP.pdf}
 
+\chapter{Vaillant uniSTOR VPS -- Technical Data}
+\label{appendix:vps_datasheet}
 
+\noindent Technical data for the Vaillant uniSTOR VPS buffer storage cylinder series
+(VPS~300/3 to VPS~2000/3), used to validate the WTES wall U-value in
+Section~\ref{par:wtes_uval}.
+Key parameters: cylinder tank capacity [L], outer diameter with and without heat
+insulation [mm], standby energy consumption [kWh/24\,h] (test condition: tank at
+$65\,^{\circ}\mathrm{C}$, ambient $20\,^{\circ}\mathrm{C}$, per EN~12977-3).
 
+\includepdf[pages=-]{Appendices/vps_technical.pdf}
+
+\chapter{Viessmann Vitocell 100-H SVPC -- Technical Data}
+\label{appendix:svpc_datasheet}
+
+\noindent Technical data for the Viessmann Vitocell~100-H SVPC buffer storage cylinder series,
+used alongside the Vaillant VPS data to validate the WTES wall U-value in
+Section~\ref{par:wtes_uval}.
+Both standard and efficient insulation variants are included.
+
+\includepdf[pages=-]{Appendices/viesmann_technical.pdf}
+
+\chapter{CAPEX Market Data Fits -- HTHP, PV, BESS, LTES, WTES}
+\label{appendix:capex_fits}
+
+\noindent Market-data scatter plots and fitted CAPEX curves for all five technologies
+in \autoref{tab:econ_params}.
+The fitted coefficients ($c_f$, $c_v$) used in the MILP are shown on each figure.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/HTHP_capex_plot.png}
+    \caption{HTHP specific CAPEX vs.\ rated heating capacity.
+             Data points from the Daikin EWYE-CZ catalogue across the available
+             capacity range (15--60\,kW$_\mathrm{th}$).
+             The fitted curve $\text{CAPEX}/Q_\mathrm{hp} = 9{,}516/Q_\mathrm{hp} + 644$
+             [\euro/kW$_\mathrm{th}$] is equivalent to the total cost model
+             $c_f + c_v\,Q_\mathrm{hp} = 9{,}516 + 644\,Q_\mathrm{hp}$ [\euro].}
+    \label{fig:capex_hthp}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/PV_capex_plot.png}
+    \caption{PV array CAPEX market data and linear fit.
+             Data from greenakku.de (DE) and solarwinkel.be (BE).
+             Left: total CAPEX vs capacity; right: specific CAPEX vs capacity.
+             The shaded area indicates the installation-labour component.
+             Fit: $c_f = \euro919$, $c_v = \euro532/\text{kW}_\mathrm{p}$
+             (hardware \euro264/kW$_\mathrm{p}$ + installation \euro268/kW$_\mathrm{p}$).}
+    \label{fig:capex_pv}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/BESS_capex_plot.png}
+    \caption{Battery energy storage (BESS) CAPEX market data and linear fit.
+             Data from BYD, SolarEdge, and Huawei product catalogues.
+             Left: total CAPEX vs capacity; right: specific CAPEX vs capacity.
+             Fit: $c_f = \euro848$, $c_v = \euro456/\text{kWh}$.}
+    \label{fig:capex_bess}
+\end{figure}
+
+\noindent The individual fits for LTES and WTES are overlaid in the combined specific-cost
+comparison below.
+Both fits are expressed on a common thermal-energy basis
+($\Delta T_\mathrm{HC} = 20\,\mathrm{K}$) to allow a direct cost-per-kWh comparison.
+At small capacities the LTES fixed-cost component dominates, making the water tank
+cheaper per kWh; above roughly 15--20\,kWh$_\mathrm{th}$ the LTES variable cost
+asymptotes to its marginal rate, which remains higher than the WTES marginal rate
+throughout the range shown.
+This cost gap is the reason the solver only selects LTES when a volume constraint
+prevents the WTES from meeting the required capacity
+(see Section~\ref{sub:ltes_model}).
+\label{appendix:capex_tes_comparison}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/TES_combined_capex.png}
+    \caption{Specific CAPEX comparison of WTES and LTES on a per-kWh$_\mathrm{th}$ basis
+             at $\Delta T_\mathrm{HC} = 20\,\mathrm{K}$.
+             Left: full capacity range (0--100\,kWh$_\mathrm{th}$);
+             right: zoomed view (0--25\,kWh$_\mathrm{th}$) highlighting the crossover region.
+             WTES fit: $c_f = \euro921$, $c_v \approx \euro52/\text{kWh}_\mathrm{th}$;
+             LTES fit: $c_f = \euro721$, $c_v = \euro197/\text{kWh}_\mathrm{th}$.}
+    \label{fig:capex_tes_compare}
+\end{figure}
+
+\chapter{Sunamp Thermino~e -- Technical Datasheet}
+\label{appendix:thermino_datasheet}
+
+\noindent Technical datasheet for the Sunamp Thermino~e latent thermal energy storage
+unit range (70\,e to 300\,e), used to derive the standby-loss coefficients in
+Section~\ref{sub:ltes_model} (Eq.~\eqref{eq:ltes_loss_fit}).
+Key parameters: nominal thermal capacity [kWh$_\mathrm{th}$] and 24-hour standby
+heat loss [kWh/24\,h].
+
+\includepdf[pages=-]{Appendices/Thermino-E-V3.pdf}
+
+\chapter{Ecopower Tariff Card -- Dynamische burgerstroom (January 2026)}
+\label{appendix:tariefkaart}
+
+\includepdf[pages=-]{Appendices/202601_dbs_tariefkaart (5).pdf}
+
+\chapter{PV Installation Quote -- Suwie (2023)}
+\label{appendix:suwie_quote}
+
+\includepdf[pages=-]{Appendices/suwie.pdf}
 
 
 \includepdf[scale = 0.75, pages=1, pagecommand = \chapter{Title appendix B} \label{appendix:B}, offset=0cm -3cm]{Appendices/AppendixB.pdf}
